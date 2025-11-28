@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "UI/Widget_MoodMeter.h"
+#include "UI/Widget_Dialogue.h"
 #include "ActorComponents/AC_DialogueSystem.h"
 #include "Engine/DataTable.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/WidgetComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Enums/GlobalEnums.h"
 #include "DialogueSystemPlusCharacter.h"
 #include "Subsystem_Dialogue.generated.h"
@@ -35,6 +38,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
 	UWidget_MoodMeter* WBP_MoodMeter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dialogue Widget")
+	UWidget_Dialogue* WBP_Dialogue;
+
+	UPROPERTY()
+	TSubclassOf<UWidget_Dialogue> DialogueWidgetClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
 	UDataTable* DataTable_NPC;

@@ -14,6 +14,16 @@ void USubsystem_Dialogue::Initialize(FSubsystemCollectionBase& Collection)
 		DataTable_MainCharacter = MainCharacter->DataTable_MainCharacter;
 		DSM_MainCharacter = MainCharacter->DSM_MainCharacter;
 	}
+
+	// Getting WBP_Dialogue
+	if (DialogueWidgetClass)
+	{
+		WBP_Dialogue = CreateWidget<UWidget_Dialogue>(GetWorld(),DialogueWidgetClass);
+		if (WBP_Dialogue)
+		{
+			WBP_Dialogue->AddToViewport();
+		}
+	}
 }
 
 void USubsystem_Dialogue::Deinitialize()
