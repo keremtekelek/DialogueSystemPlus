@@ -24,3 +24,15 @@ enum class EConversationPartner : uint8
 	PotatoSeller		UMETA(DisplayName = "PotatoSeller")
 	        
 };
+
+UENUM(BlueprintType)
+enum class EOwner : uint8
+{
+	DoesntMatter        UMETA(DisplayName = "DoesntMatter"),    
+	AppleSeller	        UMETA(DisplayName = "AppleSeller"),   
+	Butcher				UMETA(DisplayName = "Butcher"),
+	Baker				UMETA(DisplayName = "Baker"),
+	LemonSeller			UMETA(DisplayName = "LemonSeller"),
+	PotatoSeller		UMETA(DisplayName = "PotatoSeller")
+	        
+};
