@@ -36,6 +36,7 @@ class DIALOGUESYSTEMPLUS_API UDialogueWriter : public UObject
 
 public:
 
+	//***Data Tables***
 	UPROPERTY(EditDefaultsOnly, Category = "Data Tables")
 	UDataTable* DT_AppleSeller;
 
@@ -54,11 +55,25 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Data Tables")
 	UDataTable* DT_MainCharacter;
 
+	UPROPERTY()
+	TArray<UEdGraphNode*> VisitedNPC_Nodes;
+
+	UPROPERTY()
+	TArray<UEdGraphNode*> VisitedMC_Nodes;
+
+	
+
 
 public:
 	
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Dialogue Tools")
 	void GenerateDialogueData();
+
+	UFUNCTION()
+	void TravelAllChildNodes_NPCNode(UNPC_DialogueNode* CurrentNode);
+
+	UFUNCTION()
+	void TravelAllChildNodes_ChoiceNode(UMainCharacterChoices_Node* CurrentNode);
 
 protected:
 	

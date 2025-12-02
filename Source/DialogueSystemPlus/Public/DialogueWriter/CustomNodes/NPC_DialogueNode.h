@@ -21,6 +21,9 @@ class DIALOGUESYSTEMPLUS_API UNPC_DialogueNode : public UK2Node
 
 public:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Struct")
+	FNPC_Dialogues NPC_Row;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Data")
 	FText DialogueText;
 

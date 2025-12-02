@@ -20,6 +20,10 @@ class DIALOGUESYSTEMPLUS_API UMainCharacterChoices_Node : public UK2Node
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Choice Struct")
+	FMainCharacterChoices AllChoice_Row;
+
 	
 	UPROPERTY(EditAnywhere, Category = "Choice 1 Data")
 	FText C1_ChoiceText;
