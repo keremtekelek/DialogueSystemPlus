@@ -41,7 +41,7 @@ struct FChoice2
 	GENERATED_BODY()
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName ChoiceID1;
+	FName ChoiceID2;
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText ChoiceText;
@@ -71,7 +71,7 @@ struct FChoice3
 	GENERATED_BODY()
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName ChoiceID1;
+	FName ChoiceID3;
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText ChoiceText;
