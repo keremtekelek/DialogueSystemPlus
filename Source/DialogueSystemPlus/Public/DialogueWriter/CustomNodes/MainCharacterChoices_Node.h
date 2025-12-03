@@ -24,6 +24,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Choice Struct")
 	FMainCharacterChoices AllChoice_Row;
 
+	UPROPERTY(VisibleAnywhere)
+	FName PersistentChoiceID1;
+
+	UPROPERTY(VisibleAnywhere)
+	FName PersistentChoiceID2;
+
+	UPROPERTY(VisibleAnywhere)
+	FName PersistentChoiceID3;
+
 	
 	UPROPERTY(EditAnywhere, Category = "Choice 1 Data")
 	FText C1_ChoiceText;

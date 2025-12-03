@@ -75,6 +75,12 @@ public:
 	UFUNCTION()
 	void TravelAllChildNodes_ChoiceNode(UMainCharacterChoices_Node* CurrentNode);
 
+	UFUNCTION()
+	void ClearDataTables();
+
+	UFUNCTION()
+	void MarkDataTablesAsDirty();
+
 protected:
 	
 	virtual void PostInitProperties() override;

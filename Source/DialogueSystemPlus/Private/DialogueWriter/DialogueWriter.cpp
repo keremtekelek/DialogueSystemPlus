@@ -22,163 +22,208 @@ void UDialogueWriter::GenerateDialogueData()
 
 	VisitedNPC_Nodes.Empty();
 	VisitedMC_Nodes.Empty();
+	
+	bool GraphHasNodes = false;
+	
+    for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
+    {
+    	if (Graph && Graph->Nodes.Num() > 0)
+    	{
+    			GraphHasNodes = true;
+    			break;
+    	}
+    }
+    
+    if(!GraphHasNodes)
+    {
+		ClearDataTables();
+    	UE_LOG(LogTemp, Warning, TEXT("Graph has no nodes. Data Tables are cleared"))
+    	
+    	return;
+    }
+    
 
 	//
 	for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
 	{
+		if (!Graph) continue;
+		
 		for (UEdGraphNode* Node : Graph->Nodes)
 		{
-			// Handling NPC_Dialogue Node
-			if (UNPC_DialogueNode* NPCNode = Cast<UNPC_DialogueNode>(Node))
+			if (!IsValid(Node)) continue;
+			
+			bool IsRoot = false;
+
+			UEdGraphPin* InputPin = Node->FindPin(UEdGraphSchema_K2::PN_Execute);
+
+			if (!InputPin || InputPin->LinkedTo.Num() == 0)
 			{
-				
+				IsRoot = true;
+			}
 
-				if (NPCNode->DialogueID.IsNone())
+			if (IsRoot)
+			{
+				// Handling NPC_Dialogue Node
+				if (UNPC_DialogueNode* NPCNode = Cast<UNPC_DialogueNode>(Node))
 				{
-					// **** Handling non-Automated Variables****
-
-					//---DialogueText, RelatedGlobalEvents, DesiredNPC_Mood, OwnerOfNode---
-					NPCNode->NPC_Row.DialogueText = NPCNode->DialogueText;
-					NPCNode->NPC_Row.RelatedGlobalEvents = NPCNode->RelatedGlobalEvent;
-					NPCNode->NPC_Row.DesiredNPC_Mood = NPCNode->DesiredNPC_Mood;
-					NPCNode->NPC_Row.ConversationPartner = NPCNode->OwnerOfNode;
-
-					//*** Handling Automated Variables***
-
-					//---DialogueID--
-					FGuid NodeID_GUID = NPCNode->NodeGuid;
-					FString NodeID_string = NodeID_GUID.ToString();
-					FName NodeID(*NodeID_string);
-					
-					NPCNode->NPC_Row.DialogueID = NodeID; 
-
-					//---EndOfDialogue---
-					UEdGraphPin* ExecPin = NPCNode->FindPin(UEdGraphSchema_K2::PN_Then);
-					if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
+					bool bNeedsUpdate = false;
+					if (NPCNode->DialogueID.IsNone())
 					{
-						NPCNode->NPC_Row.EndOfDialogue = false;
+						bNeedsUpdate = true;
+					}
+
+					if (bNeedsUpdate)
+					{
+						NPCNode->Modify();
+					}
+					
+					if (NPCNode->DialogueID.IsNone())
+					{
+						// **** Handling non-Automated Variables****
+
+						//---DialogueText, RelatedGlobalEvents, DesiredNPC_Mood, OwnerOfNode---
+						NPCNode->NPC_Row.DialogueText = NPCNode->DialogueText;
+						NPCNode->NPC_Row.RelatedGlobalEvents = NPCNode->RelatedGlobalEvent;
+						NPCNode->NPC_Row.DesiredNPC_Mood = NPCNode->DesiredNPC_Mood;
+						NPCNode->NPC_Row.ConversationPartner = NPCNode->OwnerOfNode;
+
+						//*** Handling Automated Variables***
+
+						NPCNode->Modify();
+						
+						//---DialogueID--
+						FGuid NodeID_GUID = NPCNode->NodeGuid;
+						FString NodeID_string = NodeID_GUID.ToString();
+						FName NodeID(*NodeID_string);
+					
+						NPCNode->NPC_Row.DialogueID = NodeID; 
+
+						//---EndOfDialogue---
+						UEdGraphPin* ExecPin = NPCNode->FindPin(UEdGraphSchema_K2::PN_Then);
+						if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
+						{
+							NPCNode->NPC_Row.EndOfDialogue = false;
+						}
+						else
+						{
+							NPCNode->NPC_Row.EndOfDialogue = true;
+						}
+
+						TravelAllChildNodes_NPCNode(NPCNode);
+					
 					}
 					else
 					{
-						NPCNode->NPC_Row.EndOfDialogue = true;
+						// ??
+					}
+				}
+
+				// Handling MainnCharacterChoices Node
+				else if (UMainCharacterChoices_Node* MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(Node))
+				{
+				
+
+					// **** Handling non-Automated Variables****
+
+					//---Choice Text---
+					MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceText = MainCharacterChoicesNode->C1_ChoiceText;
+					MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceText = MainCharacterChoicesNode->C2_ChoiceText;
+					MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceText = MainCharacterChoicesNode->C3_ChoiceText;
+
+				
+					//---Related Global Events---
+					MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedGlobalEvents = MainCharacterChoicesNode->C1_RelatedGlobalEvents;
+					MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedGlobalEvents = MainCharacterChoicesNode->C2_RelatedGlobalEvents;
+					MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedGlobalEvents = MainCharacterChoicesNode->C3_RelatedGlobalEvents;
+
+				
+					//---Effects Mood---
+					MainCharacterChoicesNode->AllChoice_Row.Choice1.EffectsMood = MainCharacterChoicesNode->C1_EffectMood;
+					MainCharacterChoicesNode->AllChoice_Row.Choice2.EffectsMood = MainCharacterChoicesNode->C2_EffectMood;
+					MainCharacterChoicesNode->AllChoice_Row.Choice3.EffectsMood = MainCharacterChoicesNode->C3_EffectMood;
+
+					//*** Handling Automated Variables***
+
+					//---Choice ID---
+
+					
+
+					//---Choice ID 1---
+
+					/*
+					if (MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1.IsNone())
+					{
+						
+						MainCharacterChoicesNode->Modify(); 
+					
+						FGuid Choice1_guid = FGuid::NewGuid();
+						
+						MainCharacterChoicesNode->PersistentChoiceID1 = FName(*Choice1_guid.ToString());
+						MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1 = FName(*Choice1_guid.ToString());
+					}*/
+
+					if (MainCharacterChoicesNode->PersistentChoiceID1.IsNone())
+					{
+						MainCharacterChoicesNode->Modify();
+						FGuid Choice1_guid = FGuid::NewGuid();
+						MainCharacterChoicesNode->PersistentChoiceID1 = FName(*Choice1_guid.ToString());
+
+						MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1 = MainCharacterChoicesNode->PersistentChoiceID1;
+					}
+					
+					
+
+					//---Choice ID 2---
+					if (MainCharacterChoicesNode->PersistentChoiceID1.IsNone())
+					{
+						MainCharacterChoicesNode->Modify();
+						FGuid Choice2_guid = FGuid::NewGuid();
+						MainCharacterChoicesNode->PersistentChoiceID2 = FName(*Choice2_guid.ToString());
+
+						MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceID2 = MainCharacterChoicesNode->PersistentChoiceID2;
+					}
+					
+					
+
+					//---Choice ID 3---
+					if (MainCharacterChoicesNode->PersistentChoiceID3.IsNone())
+					{
+						MainCharacterChoicesNode->Modify();
+						FGuid Choice3_guid = FGuid::NewGuid();
+						MainCharacterChoicesNode->PersistentChoiceID3 = FName(*Choice3_guid.ToString());
+
+						MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceID3 = MainCharacterChoicesNode->PersistentChoiceID3;
+
+					}
+					
+				
+				
+
+
+					UEdGraphPin* ExecPin = MainCharacterChoicesNode->FindPin(UEdGraphSchema_K2::PN_Then);  
+
+					//---EndOfDialogue---
+					if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
+					{
+						MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = false;
+						MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = false;
+						MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = false;
+					}
+					else
+					{
+						MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = true;
+						MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = true;
+						MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = true;
 					}
 
-					TravelAllChildNodes_NPCNode(NPCNode);
-					
-				}
-				else
-				{
-					// ??
+					TravelAllChildNodes_ChoiceNode(MainCharacterChoicesNode);
+				
 				}
 			}
-
-			// Handling MainnCharacterChoices Node
-			else if (UMainCharacterChoices_Node* MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(Node))
-			{
-				
-
-				// **** Handling non-Automated Variables****
-
-				//---Choice Text---
-				MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceText = MainCharacterChoicesNode->C1_ChoiceText;
-				MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceText = MainCharacterChoicesNode->C2_ChoiceText;
-				MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceText = MainCharacterChoicesNode->C3_ChoiceText;
-
-				
-				//---Related Global Events---
-				MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedGlobalEvents = MainCharacterChoicesNode->C1_RelatedGlobalEvents;
-				MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedGlobalEvents = MainCharacterChoicesNode->C2_RelatedGlobalEvents;
-				MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedGlobalEvents = MainCharacterChoicesNode->C3_RelatedGlobalEvents;
-
-				
-				//---Effects Mood---
-				MainCharacterChoicesNode->AllChoice_Row.Choice1.EffectsMood = MainCharacterChoicesNode->C1_EffectMood;
-				MainCharacterChoicesNode->AllChoice_Row.Choice2.EffectsMood = MainCharacterChoicesNode->C2_EffectMood;
-				MainCharacterChoicesNode->AllChoice_Row.Choice3.EffectsMood = MainCharacterChoicesNode->C3_EffectMood;
-
-				//*** Handling Automated Variables***
-
-				//---Choice ID---
-
-				if (MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1.IsNone()
-				&& MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceID2.IsNone()
-				&& MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceID3.IsNone()
-				)
-				{
-					FGuid Choice1_guid = FGuid::NewGuid();
-					FString Choice1_string = Choice1_guid.ToString();
-					FName NodeID(*Choice1_string);
-
-					FGuid Choice2_guid = FGuid::NewGuid();
-					FString Choice2_string = Choice1_guid.ToString();
-					FName NodeID2(*Choice1_string);
-
-					FGuid Choice3_guid = FGuid::NewGuid();
-					FString Choice3_string = Choice1_guid.ToString();
-					FName NodeID3(*Choice1_string);
-				
-					MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1 = NodeID;  
-					MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceID2 = NodeID2;
-					MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceID3 = NodeID3;
-				}
-				else
-				{
-					// ??
-				}
-				
-
-
-				UEdGraphPin* ExecPin = MainCharacterChoicesNode->FindPin(UEdGraphSchema_K2::PN_Then);  
-
-				//---EndOfDialogue---
-				if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
-				{
-					MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = false;
-					MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = false;
-					MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = false;
-				}
-				else
-				{
-					MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = true;
-					MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = true;
-					MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = true;
-				}
-
-				TravelAllChildNodes_ChoiceNode(MainCharacterChoicesNode);
-				
-			}
-			else
-			{
-				// ??
-			}
-
 		}
 	}
 
-	if (DT_AppleSeller)
-	{
-		DT_AppleSeller->EmptyTable();
-	}
-	if (DT_Butcher)
-	{
-		DT_Butcher->EmptyTable();
-	}
-	if (DT_Baker)
-	{
-		DT_Baker->EmptyTable();
-	}
-	if (DT_LemonSeller)
-	{
-		DT_LemonSeller->EmptyTable();
-	}
-	if (DT_PotatoSeller)
-	{
-		DT_PotatoSeller->EmptyTable();
-	}
-	if (DT_MainCharacter)
-	{
-		DT_MainCharacter->EmptyTable();
-	}
+	ClearDataTables();
 		
    
     for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
@@ -237,30 +282,7 @@ void UDialogueWriter::GenerateDialogueData()
     }
 
    
-	if (DT_AppleSeller)
-	{
-		DT_AppleSeller->MarkPackageDirty();
-	}
-	if (DT_Butcher)
-	{
-		DT_Butcher->MarkPackageDirty();
-	}
-	if (DT_Baker)
-	{
-		DT_Baker->MarkPackageDirty();
-	}
-	if (DT_LemonSeller)
-	{
-		DT_LemonSeller->MarkPackageDirty();
-	}
-	if (DT_PotatoSeller)
-	{
-		DT_PotatoSeller->MarkPackageDirty();
-	}
-	if (DT_MainCharacter)
-	{
-		DT_MainCharacter->MarkPackageDirty();
-	}
+	MarkDataTablesAsDirty();
 
 	UE_LOG(LogTemp, Warning, TEXT("GenerateDialogueData Worked!"));
 #endif
@@ -417,3 +439,60 @@ void UDialogueWriter::TravelAllChildNodes_ChoiceNode(UMainCharacterChoices_Node*
         }
     }
 }
+
+void UDialogueWriter::ClearDataTables()
+{
+	if (DT_AppleSeller)
+	{
+		DT_AppleSeller->EmptyTable();
+	}
+	if (DT_Butcher)
+	{
+		DT_Butcher->EmptyTable();
+	}
+	if (DT_Baker)
+	{
+		DT_Baker->EmptyTable();
+	}
+	if (DT_LemonSeller)
+	{
+		DT_LemonSeller->EmptyTable();
+	}
+	if (DT_PotatoSeller)
+	{
+		DT_PotatoSeller->EmptyTable();
+	}
+	if (DT_MainCharacter)
+	{
+		DT_MainCharacter->EmptyTable();
+	}
+}
+
+void UDialogueWriter::MarkDataTablesAsDirty()
+{
+	if (DT_AppleSeller)
+	{
+		DT_AppleSeller->MarkPackageDirty();
+	}
+	if (DT_Butcher)
+	{
+		DT_Butcher->MarkPackageDirty();
+	}
+	if (DT_Baker)
+	{
+		DT_Baker->MarkPackageDirty();
+	}
+	if (DT_LemonSeller)
+	{
+		DT_LemonSeller->MarkPackageDirty();
+	}
+	if (DT_PotatoSeller)
+	{
+		DT_PotatoSeller->MarkPackageDirty();
+	}
+	if (DT_MainCharacter)
+	{
+		DT_MainCharacter->MarkPackageDirty();
+	}
+}
+
