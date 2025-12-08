@@ -42,244 +42,48 @@ void UDialogueWriter::GenerateDialogueData()
     	return;
     }
     
-
-	//
+	// Getting Root NPC Nodes
 	for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
 	{
-		if (!Graph) continue;
+		if (!Graph)
+		{
+			continue;
+		}
 		
 		for (UEdGraphNode* Node : Graph->Nodes)
 		{
-			if (!IsValid(Node)) continue;
+			if (!IsValid(Node))
+			{
+				continue;
+			}
 			
-			bool IsRoot = false;
-
-			UEdGraphPin* InputPin = Node->FindPin(UEdGraphSchema_K2::PN_Execute);
-
-			if (!InputPin || InputPin->LinkedTo.Num() == 0)
+			if (UNPC_DialogueNode* NPCNode = Cast<UNPC_DialogueNode>(Node))
 			{
-				IsRoot = true;
-			}
-
-			if (IsRoot)
-			{
-				// Handling NPC_Dialogue Node
-				if (UNPC_DialogueNode* NPCNode = Cast<UNPC_DialogueNode>(Node))
+				bool IsRoot = false;
+				
+				UEdGraphPin* InputPin = NPCNode->FindPin(UEdGraphSchema_K2::PN_Execute);
+			
+				if (!InputPin || InputPin->LinkedTo.Num() == 0)
 				{
-					bool bNeedsUpdate = false;
-					if (NPCNode->DialogueID.IsNone())
-					{
-						bNeedsUpdate = true;
-					}
-
-					if (bNeedsUpdate)
-					{
-						NPCNode->Modify();
-					}
-					
-					if (NPCNode->DialogueID.IsNone())
-					{
-						// **** Handling non-Automated Variables****
-
-						//---DialogueText, RelatedGlobalEvents, DesiredNPC_Mood, OwnerOfNode---
-						NPCNode->NPC_Row.DialogueText = NPCNode->DialogueText;
-						NPCNode->NPC_Row.RelatedGlobalEvents = NPCNode->RelatedGlobalEvent;
-						NPCNode->NPC_Row.DesiredNPC_Mood = NPCNode->DesiredNPC_Mood;
-						NPCNode->NPC_Row.ConversationPartner = NPCNode->OwnerOfNode;
-
-						//*** Handling Automated Variables***
-
-						NPCNode->Modify();
-						
-						//---DialogueID--
-						FGuid NodeID_GUID = NPCNode->NodeGuid;
-						FString NodeID_string = NodeID_GUID.ToString();
-						FName NodeID(*NodeID_string);
-					
-						NPCNode->NPC_Row.DialogueID = NodeID; 
-
-						//---EndOfDialogue---
-						UEdGraphPin* ExecPin = NPCNode->FindPin(UEdGraphSchema_K2::PN_Then);
-						if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
-						{
-							NPCNode->NPC_Row.EndOfDialogue = false;
-						}
-						else
-						{
-							NPCNode->NPC_Row.EndOfDialogue = true;
-						}
-
-						TravelAllChildNodes_NPCNode(NPCNode);
-					
-					}
-					else
-					{
-						// ??
-					}
+					IsRoot = true;
+				
+					RootNPC_Nodes.Add(NPCNode);
 				}
-
-				// Handling MainnCharacterChoices Node
-				else if (UMainCharacterChoices_Node* MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(Node))
-				{
 				
-
-					// **** Handling non-Automated Variables****
-
-					//---Choice Text---
-					MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceText = MainCharacterChoicesNode->C1_ChoiceText;
-					MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceText = MainCharacterChoicesNode->C2_ChoiceText;
-					MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceText = MainCharacterChoicesNode->C3_ChoiceText;
-
-				
-					//---Related Global Events---
-					MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedGlobalEvents = MainCharacterChoicesNode->C1_RelatedGlobalEvents;
-					MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedGlobalEvents = MainCharacterChoicesNode->C2_RelatedGlobalEvents;
-					MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedGlobalEvents = MainCharacterChoicesNode->C3_RelatedGlobalEvents;
-
-				
-					//---Effects Mood---
-					MainCharacterChoicesNode->AllChoice_Row.Choice1.EffectsMood = MainCharacterChoicesNode->C1_EffectMood;
-					MainCharacterChoicesNode->AllChoice_Row.Choice2.EffectsMood = MainCharacterChoicesNode->C2_EffectMood;
-					MainCharacterChoicesNode->AllChoice_Row.Choice3.EffectsMood = MainCharacterChoicesNode->C3_EffectMood;
-
-					//*** Handling Automated Variables***
-
-					//---Choice ID---
-
-					
-
-					//---Choice ID 1---
-
-					/*
-					if (MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1.IsNone())
-					{
-						
-						MainCharacterChoicesNode->Modify(); 
-					
-						FGuid Choice1_guid = FGuid::NewGuid();
-						
-						MainCharacterChoicesNode->PersistentChoiceID1 = FName(*Choice1_guid.ToString());
-						MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1 = FName(*Choice1_guid.ToString());
-					}*/
-
-					if (MainCharacterChoicesNode->PersistentChoiceID1.IsNone())
-					{
-						MainCharacterChoicesNode->Modify();
-						FGuid Choice1_guid = FGuid::NewGuid();
-						MainCharacterChoicesNode->PersistentChoiceID1 = FName(*Choice1_guid.ToString());
-
-						MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1 = MainCharacterChoicesNode->PersistentChoiceID1;
-					}
-					
-					
-
-					//---Choice ID 2---
-					if (MainCharacterChoicesNode->PersistentChoiceID1.IsNone())
-					{
-						MainCharacterChoicesNode->Modify();
-						FGuid Choice2_guid = FGuid::NewGuid();
-						MainCharacterChoicesNode->PersistentChoiceID2 = FName(*Choice2_guid.ToString());
-
-						MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceID2 = MainCharacterChoicesNode->PersistentChoiceID2;
-					}
-					
-					
-
-					//---Choice ID 3---
-					if (MainCharacterChoicesNode->PersistentChoiceID3.IsNone())
-					{
-						MainCharacterChoicesNode->Modify();
-						FGuid Choice3_guid = FGuid::NewGuid();
-						MainCharacterChoicesNode->PersistentChoiceID3 = FName(*Choice3_guid.ToString());
-
-						MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceID3 = MainCharacterChoicesNode->PersistentChoiceID3;
-
-					}
-					
-				
-				
-
-
-					UEdGraphPin* ExecPin = MainCharacterChoicesNode->FindPin(UEdGraphSchema_K2::PN_Then);  
-
-					//---EndOfDialogue---
-					if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
-					{
-						MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = false;
-						MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = false;
-						MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = false;
-					}
-					else
-					{
-						MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = true;
-						MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = true;
-						MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = true;
-					}
-
-					TravelAllChildNodes_ChoiceNode(MainCharacterChoicesNode);
-				
-				}
 			}
+			
 		}
 	}
+			
+	for (UNPC_DialogueNode* Node : RootNPC_Nodes)
+	{
+		HandleAutomatedData(Node);
+	}
 
-	ClearDataTables();
+	
 		
    
-    for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
-    {
-        for (UEdGraphNode* Node : Graph->Nodes)
-        {
-           
-            if (UNPC_DialogueNode* NPCNode = Cast<UNPC_DialogueNode>(Node))
-            {
-                UDataTable* TargetTable = nullptr;
-
-                
-                switch (NPCNode->NPC_Row.ConversationPartner)
-                {
-                    case EConversationPartner::AppleSeller:
-                        TargetTable = DT_AppleSeller;
-                        break;
-                    case EConversationPartner::Baker:
-                        TargetTable = DT_Baker;
-                        break;
-                    case EConversationPartner::Butcher:
-                        TargetTable = DT_Butcher;
-                        break;
-					case EConversationPartner::LemonSeller:
-                		TargetTable = DT_LemonSeller;
-                		break;
-					case EConversationPartner::PotatoSeller:
-                		TargetTable = DT_PotatoSeller;
-                		break;
-                    
-                }
-
-                if (TargetTable)
-                {
-                   
-                    TargetTable->AddRow(NPCNode->NPC_Row.DialogueID, NPCNode->NPC_Row);
-                }
-            }
-
-            
-            else if (UMainCharacterChoices_Node* MCNode = Cast<UMainCharacterChoices_Node>(Node))
-            {
-                if (DT_MainCharacter)
-                {
-                    // Choice 1
-                    DT_MainCharacter->AddRow(MCNode->AllChoice_Row.Choice1.ChoiceID1, MCNode->AllChoice_Row);
-
-                    // Choice 2
-                    DT_MainCharacter->AddRow(MCNode->AllChoice_Row.Choice2.ChoiceID2, MCNode->AllChoice_Row);
-
-                    // Choice 3
-                    DT_MainCharacter->AddRow(MCNode->AllChoice_Row.Choice3.ChoiceID3, MCNode->AllChoice_Row);
-                }
-            }
-        }
-    }
+    
 
    
 	MarkDataTablesAsDirty();
@@ -287,6 +91,8 @@ void UDialogueWriter::GenerateDialogueData()
 	UE_LOG(LogTemp, Warning, TEXT("GenerateDialogueData Worked!"));
 #endif
 }
+
+
 
 void UDialogueWriter::PostInitProperties()
 {
@@ -337,107 +143,205 @@ void UDialogueWriter::OnBlueprintCompiled(UBlueprint* InBlueprint)
 #endif
 
 
-void UDialogueWriter::TravelAllChildNodes_NPCNode(UNPC_DialogueNode* CurrentNode)
+
+
+
+
+
+void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 {
-	
-	
-	FNPC_Dialogues NPC_Row;
-
-	if (!CurrentNode || VisitedNPC_Nodes.Contains(CurrentNode))
+	if (UNPC_DialogueNode* NPCNode = Cast<UNPC_DialogueNode>(HandledNode))
 	{
-		return;
-	}
-	
-	VisitedNPC_Nodes.Add(CurrentNode);
-
-	if (UEdGraphPin* ExecPin = CurrentNode->FindPin(UEdGraphSchema_K2::PN_Then))
-	{
-		if (ExecPin && ExecPin->LinkedTo.Num() > 0)
+		if (!NPCNode || VisitedNPC_Nodes.Contains(NPCNode))
 		{
+			return;
+		}
+		VisitedNPC_Nodes.Add(NPCNode);
+		
+		
+		
+		UEdGraphPin* ExecPin = NPCNode->FindPin(UEdGraphSchema_K2::PN_Then);
+		if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
+		{
+			NPCNode->NPC_Row.EndOfDialogue = false;
+			
 			for (UEdGraphPin* LinkedPin : ExecPin->LinkedTo)
 			{
-			
 				if (LinkedPin && LinkedPin->GetOwningNode())
 				{
 					if (UMainCharacterChoices_Node* Next_MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(LinkedPin->GetOwningNode()))
 					{
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues.Add(CurrentNode->NPC_Row.DialogueID);
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues.Add(CurrentNode->NPC_Row.DialogueID);
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues.Add(CurrentNode->NPC_Row.DialogueID);
-
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues.Append(CurrentNode->NPC_Row.RelatedNPC_Dialogues);
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues.Append(CurrentNode->NPC_Row.RelatedNPC_Dialogues);
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues.Append(CurrentNode->NPC_Row.RelatedNPC_Dialogues);
-
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
 						
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner = CurrentNode->NPC_Row.ConversationPartner;
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.ConversationPartner = CurrentNode->NPC_Row.ConversationPartner;
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.ConversationPartner = CurrentNode->NPC_Row.ConversationPartner;
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
 
-						TravelAllChildNodes_ChoiceNode(Next_MainCharacterChoicesNode);
+						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Dialogues)
+						{
+							Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues.AddUnique(IncomingID);
+							Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues.AddUnique(IncomingID);
+							Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues.AddUnique(IncomingID);
+						}
+						
+						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Choices)
+						{
+							Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Choices.AddUnique(IncomingID);
+							Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Choices.AddUnique(IncomingID);
+							Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Choices.AddUnique(IncomingID);
+						}
+						
+						AddToDataTable(NPCNode);
+						HandleAutomatedData(Next_MainCharacterChoicesNode); //
 					}
 				}
 			}
 		}
+		else
+		{
+			NPCNode->NPC_Row.EndOfDialogue = true;
+			
+			AddToDataTable(NPCNode);
+			
+		}
 		
+		
+	}
+	
+	else if (UMainCharacterChoices_Node* MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(HandledNode))
+	{
+		if (!MainCharacterChoicesNode || VisitedMC_Nodes.Contains(MainCharacterChoicesNode))
+		{
+			return;
+		}
+		VisitedMC_Nodes.Add(MainCharacterChoicesNode);
+		
+		const TArray<FName> ChoicePinNames = { TEXT("Choice1"), TEXT("Choice2"), TEXT("Choice3") };
+		
+		
+		
+		for (int32 i = 0; i < ChoicePinNames.Num(); i++)
+		{
+			UEdGraphPin* OutputPin = MainCharacterChoicesNode->FindPin(ChoicePinNames[i]);
+			
+			if (OutputPin && OutputPin->LinkedTo.Num() > 0)
+			{
+				MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = false;
+				MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = false;
+				MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = false;
+				
+				for (UEdGraphPin* LinkedPin : OutputPin->LinkedTo)
+				{
+					if (LinkedPin && LinkedPin->GetOwningNode())
+					{
+						if (UNPC_DialogueNode* Next_NPCNode = Cast<UNPC_DialogueNode>(LinkedPin->GetOwningNode()))
+						{
+							if (i == 0) // Choice1
+							{
+								Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1);
+								
+								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues)
+								{
+									Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
+								}
+								
+								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Choices)
+								{
+									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
+								}
+							}
+							
+							else if (i == 1) // Choice 2
+							{
+								Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceID2);
+								
+								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues)
+								{
+									Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
+								}
+								
+								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Choices)
+								{
+									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
+								}
+							}
+							
+							else if (i == 2) // Choice 3
+							{
+								Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceID3);
+								
+								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues)
+								{
+									Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
+								}
+								
+								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Choices)
+								{
+									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
+								}
+							}
+							
+							AddToDataTable(MainCharacterChoicesNode);
+							HandleAutomatedData(Next_NPCNode);
+						}
+					}
+				}
+			}
+			else
+			{
+				MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = true;
+				MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = true;
+				MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = true;
+			}
+		}
+
 		
 	}
 }
 
-void UDialogueWriter::TravelAllChildNodes_ChoiceNode(UMainCharacterChoices_Node* CurrentNode)
+
+//Data Table Functions
+
+
+void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 {
-	if (!CurrentNode || VisitedMC_Nodes.Contains(CurrentNode))
+	if (UNPC_DialogueNode* NPCNode = Cast<UNPC_DialogueNode>(NodeToAddDataTable))
 	{
-		return;
+		UDataTable* TargetTable = nullptr;
+		
+		switch (NPCNode->NPC_Row.ConversationPartner)
+		{
+		case EConversationPartner::AppleSeller:
+			TargetTable = DT_AppleSeller;
+			break;
+		case EConversationPartner::Baker:
+			TargetTable = DT_Baker;
+			break;
+		case EConversationPartner::Butcher:
+			TargetTable = DT_Butcher;
+			break;
+		case EConversationPartner::LemonSeller:
+			TargetTable = DT_LemonSeller;
+			break;
+		case EConversationPartner::PotatoSeller:
+			TargetTable = DT_PotatoSeller;
+			break;      
+		}
+
+		if (TargetTable)
+		{ 
+			TargetTable->AddRow(NPCNode->NPC_Row.DialogueID, NPCNode->NPC_Row);
+		}
 	}
-	VisitedMC_Nodes.Add(CurrentNode);
-
-	const TArray<FName> ChoicePinNames = { TEXT("Choice1"), TEXT("Choice2"), TEXT("Choice3") };
-
-	for (int32 i = 0; i < ChoicePinNames.Num(); i++)
-    {
-        UEdGraphPin* OutputPin = CurrentNode->FindPin(ChoicePinNames[i]);
-
-        
-        if (OutputPin && OutputPin->LinkedTo.Num() > 0)
-        {
-            for (UEdGraphPin* LinkedPin : OutputPin->LinkedTo)
-            {
-                if (LinkedPin && LinkedPin->GetOwningNode())
-                {
-                    if (UNPC_DialogueNode* Next_NPCNode = Cast<UNPC_DialogueNode>(LinkedPin->GetOwningNode()))
-                    {
-                        
-                        if (i == 0) // Choice1
-                        {
-                            Next_NPCNode->NPC_Row.RelatedNPC_Choices.Append(CurrentNode->AllChoice_Row.Choice1.RelatedNPC_Choices);
-                            Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.Append(CurrentNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues); 
-                            
-                            
-                            Next_NPCNode->NPC_Row.RelatedNPC_Choices.Add(CurrentNode->AllChoice_Row.Choice1.ChoiceID1);
-                        }
-                        else if (i == 1) // Choice 2
-                        {
-                            Next_NPCNode->NPC_Row.RelatedNPC_Choices.Append(CurrentNode->AllChoice_Row.Choice2.RelatedNPC_Choices);
-                            Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.Append( CurrentNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues);
-                            
-                            Next_NPCNode->NPC_Row.RelatedNPC_Choices.Add(CurrentNode->AllChoice_Row.Choice2.ChoiceID2);
-                        }
-                        else if (i == 2) // Choice 3
-                        {
-                            Next_NPCNode->NPC_Row.RelatedNPC_Choices.Append(CurrentNode->AllChoice_Row.Choice3.RelatedNPC_Choices);
-                            Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.Append(CurrentNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues);
-                            
-                            Next_NPCNode->NPC_Row.RelatedNPC_Choices.Add(CurrentNode->AllChoice_Row.Choice3.ChoiceID3);
-                        }
-
-                        TravelAllChildNodes_NPCNode(Next_NPCNode);
-                    }
-                    
-                }
-            }
-        }
-    }
+	else if (UMainCharacterChoices_Node* MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(NodeToAddDataTable))
+	{
+		FGuid MC_guid = FGuid::NewGuid();
+		FName MC_name = FName(*MC_guid.ToString());
+		
+		DT_MainCharacter->AddRow(MC_name, MainCharacterChoicesNode->AllChoice_Row);
+	}
 }
 
 void UDialogueWriter::ClearDataTables()

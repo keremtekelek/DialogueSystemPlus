@@ -3,6 +3,13 @@
 
 #define LOCTEXT_NAMESPACE "NPC_DialogueNode"
 
+UNPC_DialogueNode::UNPC_DialogueNode()
+{
+	FGuid dialogueID_guid = FGuid::NewGuid();
+	this->NPC_Row.DialogueID = FName(*dialogueID_guid.ToString());
+}
+
+
 FText UNPC_DialogueNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
 	

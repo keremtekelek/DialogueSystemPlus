@@ -15,16 +15,10 @@
 #include "DialogueWriter.generated.h"
 
 class UBlueprint;
-class NPC_DialogueNode;
-class MainCharacterChoices_Node;
+class UNPC_DialogueNode;
+class UMainCharacterChoices_Node;
 
-UENUM(BlueprintType)
-enum class EThreeChoices : uint8
-{
-	Choice1 UMETA(DisplayName = "Choice 1"),
-	Choice2 UMETA(DisplayName = "Choice 2"),
-	Choice3 UMETA(DisplayName = "Choice 3")
-};
+
 
 /**
  * 
@@ -60,6 +54,9 @@ public:
 
 	UPROPERTY()
 	TArray<UEdGraphNode*> VisitedMC_Nodes;
+	
+	UPROPERTY()
+	TArray<UNPC_DialogueNode*> RootNPC_Nodes;
 
 	
 
@@ -69,17 +66,22 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Dialogue Tools")
 	void GenerateDialogueData();
 
-	UFUNCTION()
-	void TravelAllChildNodes_NPCNode(UNPC_DialogueNode* CurrentNode);
+	
 
-	UFUNCTION()
-	void TravelAllChildNodes_ChoiceNode(UMainCharacterChoices_Node* CurrentNode);
-
-	UFUNCTION()
+	
+	UFUNCTION(BlueprintCallable, Category = "Data Table Functions")
 	void ClearDataTables();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category = "Data Table Functions")
 	void MarkDataTablesAsDirty();
+	
+	UFUNCTION(BlueprintCallable, Category = "Data Table Functions")
+	void AddToDataTable(UEdGraphNode* NodeToAddDataTable);
+	
+	UFUNCTION(BlueprintCallable, Category = "Data Table Functions")
+	void HandleAutomatedData(UEdGraphNode* HandledNode);
+	
+	
 
 protected:
 	

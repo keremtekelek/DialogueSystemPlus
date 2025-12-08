@@ -4,6 +4,23 @@
 
 #define LOCTEXT_NAMESPACE "MainCharacterChoices_Node"
 
+
+UMainCharacterChoices_Node::UMainCharacterChoices_Node()
+{
+	//this->Modify();
+	
+	// Choice ID
+	FGuid Choice1_guid = FGuid::NewGuid();
+	FGuid Choice2_guid = FGuid::NewGuid();
+	FGuid Choice3_guid = FGuid::NewGuid();
+	
+	this->AllChoice_Row.Choice1.ChoiceID1 = FName(*Choice1_guid.ToString());
+	this->AllChoice_Row.Choice2.ChoiceID2 = FName(*Choice2_guid.ToString());
+	this->AllChoice_Row.Choice3.ChoiceID3 = FName(*Choice3_guid.ToString());
+	
+}
+
+
 FText UMainCharacterChoices_Node::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
 	return LOCTEXT("NodeTitle", "Main Character Choices Node");
