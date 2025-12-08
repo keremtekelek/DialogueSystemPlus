@@ -22,6 +22,8 @@ void UDialogueWriter::GenerateDialogueData()
 
 	VisitedNPC_Nodes.Empty();
 	VisitedMC_Nodes.Empty();
+	RootNPC_Nodes.Empty(); // Can be changed
+	ActiveIDs.Empty(); 
 	
 	bool GraphHasNodes = false;
 	
@@ -42,6 +44,8 @@ void UDialogueWriter::GenerateDialogueData()
     	return;
     }
     
+	
+	
 	// Getting Root NPC Nodes
 	for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
 	{
@@ -80,14 +84,12 @@ void UDialogueWriter::GenerateDialogueData()
 		HandleAutomatedData(Node);
 	}
 
-	
+	CleanGhostNodesFromTables();
 		
-   
-    
-
-   
 	MarkDataTablesAsDirty();
 
+	
+	
 	UE_LOG(LogTemp, Warning, TEXT("GenerateDialogueData Worked!"));
 #endif
 }
@@ -158,7 +160,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 		}
 		VisitedNPC_Nodes.Add(NPCNode);
 		
-		
+		ActiveIDs.Add(NPCNode->NPC_Row.DialogueID);
 		
 		UEdGraphPin* ExecPin = NPCNode->FindPin(UEdGraphSchema_K2::PN_Then);
 		if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
@@ -217,6 +219,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 			return;
 		}
 		VisitedMC_Nodes.Add(MainCharacterChoicesNode);
+		ActiveIDs.Add(MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1);
 		
 		const TArray<FName> ChoicePinNames = { TEXT("Choice1"), TEXT("Choice2"), TEXT("Choice3") };
 		
@@ -332,15 +335,32 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 
 		if (TargetTable)
 		{ 
-			TargetTable->AddRow(NPCNode->NPC_Row.DialogueID, NPCNode->NPC_Row);
+			FName RowName = NPCNode->NPC_Row.DialogueID;
+			
+			if (TargetTable->GetRowMap().Contains(RowName))
+			{
+				return;
+			}
+			else
+			{
+				TargetTable->AddRow(NPCNode->NPC_Row.DialogueID, NPCNode->NPC_Row);
+			}
+			
 		}
 	}
 	else if (UMainCharacterChoices_Node* MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(NodeToAddDataTable))
 	{
-		FGuid MC_guid = FGuid::NewGuid();
-		FName MC_name = FName(*MC_guid.ToString());
+		FName RowName = MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1;
+			
+		if (DT_MainCharacter->GetRowMap().Contains(RowName))
+		{
+			return;
+		}
+		else
+		{
+			DT_MainCharacter->AddRow(MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1, MainCharacterChoicesNode->AllChoice_Row);
+		}
 		
-		DT_MainCharacter->AddRow(MC_name, MainCharacterChoicesNode->AllChoice_Row);
 	}
 }
 
@@ -349,6 +369,7 @@ void UDialogueWriter::ClearDataTables()
 	if (DT_AppleSeller)
 	{
 		DT_AppleSeller->EmptyTable();
+		
 	}
 	if (DT_Butcher)
 	{
@@ -400,3 +421,34 @@ void UDialogueWriter::MarkDataTablesAsDirty()
 	}
 }
 
+void UDialogueWriter::CleanGhostNodesFromTables()
+{
+	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter };
+	
+	for (UDataTable* Table : AllTables)
+	{
+		if (!Table) continue;
+
+		
+		TArray<FName> RowsToRemove;
+        
+		
+		TArray<FName> RowNames = Table->GetRowNames();
+
+		for (const FName& RowName : RowNames)
+		{
+			
+			if (!ActiveIDs.Contains(RowName))
+			{
+				
+				RowsToRemove.Add(RowName);
+			}
+		}
+
+		
+		for (const FName& RowToRemove : RowsToRemove)
+		{
+			Table->RemoveRow(RowToRemove);
+		}
+	}
+}

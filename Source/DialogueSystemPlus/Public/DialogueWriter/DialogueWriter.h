@@ -57,6 +57,10 @@ public:
 	
 	UPROPERTY()
 	TArray<UNPC_DialogueNode*> RootNPC_Nodes;
+	
+	UPROPERTY()
+	TSet<FName> ActiveIDs;
+	
 
 	
 
@@ -80,6 +84,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Data Table Functions")
 	void HandleAutomatedData(UEdGraphNode* HandledNode);
+	
+	UFUNCTION(BlueprintCallable, Category = "Data Table Functions")
+	void CleanGhostNodesFromTables();
 	
 	
 
