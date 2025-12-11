@@ -10,6 +10,7 @@
 #include "BlueprintNodeSpawner.h"
 #include "MainCharacterChoices_Node.generated.h"
 
+class UNPC_DialogueNode;
 class UDialogueWriter;
 /**
  * 
@@ -30,6 +31,8 @@ public:
 	FMainCharacterChoices AllChoice_Row;
 
 public:
+
+	virtual bool IsConnectionDisallowed(const UEdGraphPin* MyPin, const UEdGraphPin* OtherPin, FString& OutReason) const override;
 	
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual void AllocateDefaultPins() override;

@@ -294,6 +294,8 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 			}
 			else
 			{
+				//AddToDataTable(MainCharacterChoicesNode);
+				
 				MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = true;
 				MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = true;
 				MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = true;
@@ -366,58 +368,29 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 
 void UDialogueWriter::ClearDataTables()
 {
-	if (DT_AppleSeller)
+	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter };
+
+	for (UDataTable* Table : AllTables)
 	{
-		DT_AppleSeller->EmptyTable();
-		
-	}
-	if (DT_Butcher)
-	{
-		DT_Butcher->EmptyTable();
-	}
-	if (DT_Baker)
-	{
-		DT_Baker->EmptyTable();
-	}
-	if (DT_LemonSeller)
-	{
-		DT_LemonSeller->EmptyTable();
-	}
-	if (DT_PotatoSeller)
-	{
-		DT_PotatoSeller->EmptyTable();
-	}
-	if (DT_MainCharacter)
-	{
-		DT_MainCharacter->EmptyTable();
+		if (Table)
+		{
+			Table->EmptyTable();
+		}
 	}
 }
 
 void UDialogueWriter::MarkDataTablesAsDirty()
 {
-	if (DT_AppleSeller)
+	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter };
+
+	for (UDataTable* Table : AllTables)
 	{
-		DT_AppleSeller->MarkPackageDirty();
-	}
-	if (DT_Butcher)
-	{
-		DT_Butcher->MarkPackageDirty();
-	}
-	if (DT_Baker)
-	{
-		DT_Baker->MarkPackageDirty();
-	}
-	if (DT_LemonSeller)
-	{
-		DT_LemonSeller->MarkPackageDirty();
-	}
-	if (DT_PotatoSeller)
-	{
-		DT_PotatoSeller->MarkPackageDirty();
-	}
-	if (DT_MainCharacter)
-	{
-		DT_MainCharacter->MarkPackageDirty();
+		if (Table)
+		{
+			Table->MarkPackageDirty();
+
+			FDataTableEditorUtils::BroadcastPostChange(Table, FDataTableEditorUtils::EDataTableChangeInfo::RowList);
+		}
 	}
 }
 

@@ -24,3 +24,10 @@ enum class EConversationPartner : uint8
 	PotatoSeller		UMETA(DisplayName = "PotatoSeller")
 	        
 };
+
+USTRUCT(BlueprintType)
+struct FDialogueFlow
+{
+	GENERATED_BODY()
+	
+};

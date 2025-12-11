@@ -12,6 +12,7 @@
 #include "EdGraphSchema_K2.h"
 #include "Engine/DataTable.h"
 #include "Sound/SoundBase.h"
+#include "DataTableEditorUtils.h"
 #include "DialogueWriter.generated.h"
 
 class UBlueprint;

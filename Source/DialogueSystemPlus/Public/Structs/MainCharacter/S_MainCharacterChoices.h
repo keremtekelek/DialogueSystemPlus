@@ -10,16 +10,16 @@ struct FChoice1
 {
 	GENERATED_BODY()
  
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data") // auto +
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data") // auto +
 	FName ChoiceID1;
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText ChoiceText;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data") // auto
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data") // auto
 	TArray<FName> RelatedNPC_Dialogues;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data") // auto
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data") // auto
 	TArray<FName> RelatedNPC_Choices;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -28,10 +28,10 @@ struct FChoice1
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> EventsToTrigger;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data") // auto
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data") // auto
 	bool EndOfDialogue = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data") // auto
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data") // auto
 	EConversationPartner ConversationPartner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -43,16 +43,16 @@ struct FChoice2
 {
 	GENERATED_BODY()
  
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	FName ChoiceID2;
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText ChoiceText;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	TArray<FName> RelatedNPC_Dialogues;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	TArray<FName> RelatedNPC_Choices;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -61,10 +61,10 @@ struct FChoice2
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> EventsToTrigger;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	bool EndOfDialogue = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	EConversationPartner ConversationPartner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -76,16 +76,16 @@ struct FChoice3
 {
 	GENERATED_BODY()
  
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	FName ChoiceID3;
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText ChoiceText;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	TArray<FName> RelatedNPC_Dialogues;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	TArray<FName> RelatedNPC_Choices;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -94,10 +94,10 @@ struct FChoice3
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FName> EventsToTrigger;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	bool EndOfDialogue = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Auto Generated Choice Data")
+	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	EConversationPartner ConversationPartner;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -57,7 +57,7 @@ public:
 	UFUNCTION()
 	void GettingDynamicVariables();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void AddMoodValue(int MoodValueToAdd);
 		
 };

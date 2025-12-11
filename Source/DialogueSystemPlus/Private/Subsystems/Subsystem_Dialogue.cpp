@@ -39,7 +39,6 @@ void USubsystem_Dialogue::Interacted()
 	{
 		GettingVariables();
 
-		
 	}
 }
 

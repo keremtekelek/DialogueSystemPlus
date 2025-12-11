@@ -1,5 +1,6 @@
 #include "DialogueWriter/CustomNodes/MainCharacterChoices_Node.h"
 #include "DialogueWriter/DialogueWriter.h"
+#include "DialogueWriter/CustomNodes/NPC_DialogueNode.h"
 
 
 #define LOCTEXT_NAMESPACE "MainCharacterChoices_Node"
@@ -31,6 +32,7 @@ void UMainCharacterChoices_Node::AllocateDefaultPins()
 	
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Execute);
 
+	/*
 	UEdGraphPin* C1 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, TEXT("Choice1"));
 	C1->PinFriendlyName = LOCTEXT("C1_Label", "Choice 1"); 
 
@@ -40,6 +42,17 @@ void UMainCharacterChoices_Node::AllocateDefaultPins()
 
 
 	UEdGraphPin* C3 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, TEXT("Choice3"));
+	C3->PinFriendlyName = LOCTEXT("C3_Label", "Choice 3");*/
+
+	UEdGraphPin* C1 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), TEXT("Choice1"));
+	C1->PinFriendlyName = LOCTEXT("C1_Label", "Choice 1"); 
+
+	// Choice 2
+	UEdGraphPin* C2 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), TEXT("Choice2"));
+	C2->PinFriendlyName = LOCTEXT("C2_Label", "Choice 2");
+
+	// Choice 3
+	UEdGraphPin* C3 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), TEXT("Choice3"));
 	C3->PinFriendlyName = LOCTEXT("C3_Label", "Choice 3");
 }
 
@@ -79,6 +92,41 @@ bool UMainCharacterChoices_Node::IsCompatibleWithGraph(const UEdGraph* TargetGra
 	}
 	
 	return false;
+}
+
+bool UMainCharacterChoices_Node::IsConnectionDisallowed(const UEdGraphPin* MyPin, const UEdGraphPin* OtherPin, FString& OutReason) const
+{
+	/*
+	if (MyPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Exec)
+	{
+		UK2Node* OtherNode = Cast<UK2Node>(OtherPin->GetOwningNode());
+
+		
+		bool bIsNPCNode = OtherNode && OtherNode->IsA(UNPC_DialogueNode::StaticClass());
+		bool IsChoiceNode = OtherNode && OtherNode->IsA(UMainCharacterChoices_Node::StaticClass());
+
+	if (!bIsNPCNode &&  !IsChoiceNode)
+		{
+			OutReason = TEXT("Choice node can only connect with NPC node!");
+			return true; 
+		}
+	}
+
+	return Super::IsConnectionDisallowed(MyPin, OtherPin, OutReason);*/
+
+	if (MyPin->Direction == EGPD_Output && MyPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
+	{
+		UK2Node* OtherNode = Cast<UK2Node>(OtherPin->GetOwningNode());
+		bool bIsNPC = OtherNode && OtherNode->IsA(UNPC_DialogueNode::StaticClass());
+
+		if (!bIsNPC)
+		{
+			OutReason = TEXT("Blocked");
+			return true; 
+		}
+	}
+
+	return Super::IsConnectionDisallowed(MyPin, OtherPin, OutReason);
 }
 
 #undef LOCTEXT_NAMESPACE

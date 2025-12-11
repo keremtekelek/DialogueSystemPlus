@@ -11,6 +11,7 @@
 #include "NPC_DialogueNode.generated.h"
 
 class UDialogueWriter;
+class UMainCharacterChoices_Node;
 /**
  * 
  */
@@ -32,6 +33,7 @@ public:
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 
+	virtual bool IsConnectionDisallowed(const UEdGraphPin* MyPin, const UEdGraphPin* OtherPin, FString& OutReason) const override;
 	
 	virtual void AllocateDefaultPins() override;
 
