@@ -110,4 +110,36 @@ void ANPC_Character_Base::GetDataTableAndScoreData_Implementation(UDataTable*& N
 	
 }
 
+EConversationPartner ANPC_Character_Base::GetInteractedCharacter_Implementation()
+{
+	if (CharacterName.ToString().ToLower() == FString("lemonseller"))
+	{
+		return EConversationPartner::LemonSeller;
+	}
+
+	else if (CharacterName.ToString().ToLower() == FString("appleseller"))
+	{
+		return EConversationPartner::AppleSeller;
+	}
+
+	else if (CharacterName.ToString().ToLower() == FString("butcher"))
+	{
+		return EConversationPartner::Butcher;
+	}
+
+	else if (CharacterName.ToString().ToLower() == FString("baker"))
+	{
+		return EConversationPartner::Baker;
+	}
+
+	else if (CharacterName.ToString().ToLower() == FString("potatoseller"))
+	{
+		return EConversationPartner::PotatoSeller;
+	}
+	else
+	{
+		return EConversationPartner::DoesntMatter;
+	}
+}
+
 

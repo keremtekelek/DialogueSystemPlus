@@ -33,6 +33,11 @@ public:
 public:
 
 	// VARIABLES!!
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Character")
+	FName CharacterName;
+
+
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Mood")
 	int NPC_MoodValue = 50;
@@ -64,5 +69,6 @@ public:
 	virtual UWidgetComponent* GetMoodMeter_Implementation() override;
 	virtual UAC_DialogueSystem* GetDialogueSystemComponent_Implementation() override;
 	virtual void GetDataTableAndScoreData_Implementation(UDataTable*& NPC_DataTable, TMap<FName, int32>& DSM_NPCC) override;
+	virtual EConversationPartner GetInteractedCharacter_Implementation() override;
 
 };

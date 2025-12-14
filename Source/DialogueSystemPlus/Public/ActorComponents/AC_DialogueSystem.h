@@ -49,6 +49,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
 	ENPCMood NPC_Mood;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
+	EConversationPartner InteractedCharacter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
+	FVector OwnerLocation;
+
 public:
 
 	UFUNCTION()
@@ -61,3 +67,6 @@ public:
 	void AddMoodValue(int MoodValueToAdd);
 		
 };
+
+
+

@@ -9,7 +9,9 @@
 #include "Interfaces/Interface_MainCharacter.h"
 #include "Interfaces/Interface_Interaction.h"
 #include "Engine/DataTable.h"
-#include "Engine/GameInstance.h" 
+#include "Engine/GameInstance.h"
+#include "UI/Widget_Dialogue.h"
+#include "Kismet/GameplayStatics.h"
 #include "DialogueSystemPlusCharacter.generated.h"
 
 
@@ -56,6 +58,8 @@ class ADialogueSystemPlusCharacter : public ACharacter, public IInterface_MainCh
 	UPROPERTY()
 	bool IsCharacterSprinting = false;
 
+	
+
 public:
 	ADialogueSystemPlusCharacter();
 	
@@ -87,7 +91,21 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Data")
 	UDataTable* DataTable_MainCharacter;
+
 	
+	UPROPERTY(EditAnywhere)
+	UWidget_Dialogue* DialogueWidgetRef;
+
+	UPROPERTY()
+	TSubclassOf<UWidget_Dialogue> DialogueWidgetClass;
+
+	UPROPERTY()
+	USubsystem_Dialogue* DialogueSubsystem;
+
+	
+
+public:
+
 	
 	
 	

@@ -4,12 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Enums/GlobalEnums.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/Button.h"        
 #include "Components/CanvasPanel.h"   
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "Widget_Dialogue.generated.h"
 
+class USubsystem_Dialogue;
 /**
  * 
  */
@@ -25,6 +28,7 @@ protected:
 
 public:
 
+	// Components
 	UPROPERTY(meta = (BindWidget))
 	UCanvasPanel* Canvas;
 
@@ -61,7 +65,16 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UBorder* Choice3Border;
 	
+	//
 
+	UPROPERTY()
+	EChosenOption ChosenButton;
+
+	UPROPERTY()
+	USubsystem_Dialogue* Dialogue_Subsystem;
+
+	
+	
 public:
 
 	UFUNCTION(BlueprintCallable)
@@ -75,5 +88,15 @@ public:
 
 	UFUNCTION()
 	void CloseChoices();
+
+	//OnClicked() Events
+	UFUNCTION()
+	void OnChoice1Clicked();
+
+	UFUNCTION()
+	void OnChoice2Clicked();
+
+	UFUNCTION()
+	void OnChoice3Clicked();
 	
 };

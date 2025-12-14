@@ -25,6 +25,16 @@ enum class EConversationPartner : uint8
 	        
 };
 
+UENUM(BlueprintType)
+enum class EChosenOption : uint8
+{
+	None        UMETA(DisplayName = "None"),    
+	Choice1	    UMETA(DisplayName = "Choice1"),   
+	Choice2		UMETA(DisplayName = "Choice2"),
+	Choice3		UMETA(DisplayName = "Choice3"),
+	    
+};
+
 USTRUCT(BlueprintType)
 struct FDialogueFlow
 {

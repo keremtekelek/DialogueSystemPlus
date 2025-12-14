@@ -46,6 +46,9 @@ void UAC_DialogueSystem::GettingStaticVariables()
 
 		//Getting Data Table and DSM(Dialogue Score Map) from owner
 		IInterface_NPC_Mood::Execute_GetDataTableAndScoreData(Owner,DataTable_NPC, DSM_NPC);
+
+		//Gettng Owner NPC Name
+		InteractedCharacter = IInterface_NPC_Mood::Execute_GetInteractedCharacter(Owner);
 	}
 }
 
@@ -58,6 +61,11 @@ void UAC_DialogueSystem::GettingDynamicVariables()
 		MoodValue = IInterface_NPC_Mood::Execute_GetMoodValue(Owner);
 		NPC_Mood = IInterface_NPC_Mood::Execute_GetMood(Owner);
 	}
+
+	if (IsValid(Owner))
+	{
+		OwnerLocation = Owner->GetActorLocation();
+	}
 }
 
 void UAC_DialogueSystem::AddMoodValue(int MoodValueToAdd)
@@ -66,5 +74,7 @@ void UAC_DialogueSystem::AddMoodValue(int MoodValueToAdd)
 	{
 		IInterface_NPC_Mood::Execute_AddMoodValue(Owner, MoodValueToAdd);
 	}
+
+	
 }
 

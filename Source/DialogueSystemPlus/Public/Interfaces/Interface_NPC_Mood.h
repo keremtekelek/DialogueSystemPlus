@@ -42,5 +42,8 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "NPC Data")
 	void GetDataTableAndScoreData(UDataTable*& NPC_DataTable, TMap<FName, int32>& DSM_NPCC);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "NPC Data")
+	EConversationPartner GetInteractedCharacter();
 	
 };

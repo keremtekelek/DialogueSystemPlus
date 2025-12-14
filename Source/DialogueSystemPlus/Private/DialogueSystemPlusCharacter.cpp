@@ -41,7 +41,14 @@ ADialogueSystemPlusCharacter::ADialogueSystemPlusCharacter()
 	FollowCamera->SetupAttachment(GetMesh()); 
 	FollowCamera->bUsePawnControlRotation = true; 
 
-	 
+
+	DialogueWidgetRef = nullptr;
+
+	static ConstructorHelpers::FClassFinder<UWidget_Dialogue> WidgetBPClass(TEXT("/Game/01_MyContent/Blueprints/UI/WBP_Dialogue"));
+	if (WidgetBPClass.Succeeded())
+	{
+		DialogueWidgetClass = WidgetBPClass.Class;
+	}
 	
 }
 
@@ -58,6 +65,39 @@ void ADialogueSystemPlusCharacter::PostInitializeComponents()
 void ADialogueSystemPlusCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		DialogueSubsystem = GI->GetSubsystem<USubsystem_Dialogue>();
+		
+	}
+
+	if (DialogueWidgetClass)
+	{
+		DialogueWidgetRef = CreateWidget<UWidget_Dialogue>(GetWorld(), DialogueWidgetClass);
+
+		if (DialogueWidgetRef)
+		{
+			DialogueWidgetRef->AddToViewport();
+
+			if (DialogueSubsystem)
+			{
+				DialogueSubsystem->WBP_Dialogue = DialogueWidgetRef;
+				DialogueSubsystem->DSM_MainCharacter = DSM_MainCharacter;
+				DialogueSubsystem->DataTable_MainCharacter = DataTable_MainCharacter;
+
+				DialogueSubsystem->MainCharacter = this;
+
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+				if (PlayerController)
+				{
+					DialogueSubsystem->PlayerController = PlayerController;
+				}
+			}
+		}
+	}
+
 }
 
 
@@ -149,13 +189,21 @@ void ADialogueSystemPlusCharacter::SprintEnd(const FInputActionValue& Value)
 
 void ADialogueSystemPlusCharacter::Interact(const FInputActionValue& Value)
 {
-	if (UGameInstance* GI = GetGameInstance())
+	/*
+	* if (UGameInstance* GI = GetGameInstance())
 	{
 		if (USubsystem_Dialogue* DialogueSubsystem = GI->GetSubsystem<USubsystem_Dialogue>())
 		{
 			DialogueSubsystem->Interacted();
 		}
 	}
+	 */
+
+	if (DialogueSubsystem)
+	{
+		DialogueSubsystem->Interacted();
+	}
+	
 }
 
 
