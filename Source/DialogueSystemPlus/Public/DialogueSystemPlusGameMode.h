@@ -1,9 +1,9 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "PlayerController/PlayerControllerCPP.h"
 #include "DialogueSystemPlusGameMode.generated.h"
 
 UCLASS(minimalapi)

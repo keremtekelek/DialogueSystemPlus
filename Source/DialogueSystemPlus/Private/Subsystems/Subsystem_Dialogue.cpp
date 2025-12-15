@@ -2,6 +2,7 @@
 #include "GameplayTagsManager.h"
 #include "ActorComponents/AC_InteractionSystem.h"
 #include "DialogueSystemPlusCharacter.h"
+#include "PlayerController/PlayerControllerCPP.h"
 
 
 void USubsystem_Dialogue::Initialize(FSubsystemCollectionBase& Collection)
@@ -31,6 +32,11 @@ void USubsystem_Dialogue::Interacted()
 	}
 }
 
+// Starting Dialogue
+void USubsystem_Dialogue::StartDialogue()
+{
+	ContinueDialogue();
+}
 
 // Getting useful variables from DialogueSystem
 void USubsystem_Dialogue::GettingVariables()
@@ -49,22 +55,109 @@ void USubsystem_Dialogue::GettingVariables()
 
 		InteractedCharacter = AC_InteractionSystem->AC_DialogueSystem->InteractedCharacter;
 	}
+}
 
+//Continue Dialogue
+void USubsystem_Dialogue::ContinueDialogue()
+{
+	PrintString("Continue Dialogue has been called",2.f,FColor::Red);
+	
+	FilterDialogues();
+	
+	if (NPC_EndOfDialogue)
+	{
+		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
+		ProcessedDialogues.AddUnique(NPC_DialogueID);
 
+		if (NPC_DialogueSound)
+		{
+			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
+			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
 
+			GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
+			//FinishDialogue();
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,3.f,false);
+			//FinishDialogue();
+		}
+	}
+	else
+	{
+		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
+		ProcessedDialogues.AddUnique(NPC_DialogueID);
+
+		if (NPC_DialogueSound)
+		{
+			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
+			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
+
+			GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
+
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,3.f,false);
+
+		}
+	}
+}
+
+// Filtering Dialogues
+void USubsystem_Dialogue::FilterDialogues()
+{
+	FName BestNPC_DialogueRowName = ScoreNPC_Dialogues();
+
+	if (BestNPC_DialogueRowName.IsNone())
+	{
+		//FinishDialogue();
+		return; 
+	}
+	else
+	{
+		FNPC_Dialogues* npcFoundRow = DataTable_NPC->FindRow<FNPC_Dialogues>(BestNPC_DialogueRowName,"");
+		if (npcFoundRow)
+		{
+			GetBestDialogue_RowProperties(*npcFoundRow);
+		}
+	}
+	
+	
+	
+	FName BestChoice_RowName = ScoreMC_Choices();
+
+	if (BestChoice_RowName.IsNone())
+	{
+		//FinishDialogue();
+		return; 
+	}
+	else
+	{
+		FMainCharacterChoices* FoundMC_Row = DataTable_MainCharacter->FindRow<FMainCharacterChoices>(BestChoice_RowName,"");
+		if (FoundMC_Row)
+		{
+			GetBestChoice_RowProperties(*FoundMC_Row);
+		}
+	}
+	
 	
 }
 
-
-
-
-// Starting Dialogue
-void USubsystem_Dialogue::StartDialogue()
+void USubsystem_Dialogue::FinishDialogue()
 {
-	ContinueDialogue();
+	PrintString("Finish Dialogue has been called",2.f,FColor::Red);
+	
+	FInputModeGameOnly InputMode;
+	PlayerController->SetInputMode(InputMode);
+	PlayerController->bShowMouseCursor = false;
+
+	WBP_Dialogue->CloseDialogue();
+	WBP_Dialogue->CloseChoices();
 }
 
-// Scoring Main Character Choices
+
+// Scoring Functions
 FName USubsystem_Dialogue::ScoreMC_Choices()
 {
 	if (DataTable_MainCharacter)
@@ -145,7 +238,6 @@ FName USubsystem_Dialogue::ScoreMC_Choices()
 	return NAME_None;
 }
 
-// Scoring NPC Dialogues
 FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 {
 	if (DataTable_NPC)
@@ -218,21 +310,9 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 	return NAME_None;
 }
 
-// Adding Score Value
-void USubsystem_Dialogue::AddScoreValue(int ScoreToAdd, EScoreType ScoreType)
-{
-	if (ScoreType == EScoreType::Choice)
-	{
-		ChoiceScore_Value += ScoreToAdd;
-	}
 
-	else if (ScoreType == EScoreType::Dialogue)
-	{
-		DialogueScore_Value += ScoreToAdd;
-	}
-}
 
-// Getting Best Choice Row Properties
+// Getting Row Properties
 void USubsystem_Dialogue::GetBestChoice_RowProperties(const FMainCharacterChoices& BestMC_Row)
 {
 	Choice1_ID = BestMC_Row.Choice1.ChoiceID1;
@@ -256,7 +336,6 @@ void USubsystem_Dialogue::GetBestChoice_RowProperties(const FMainCharacterChoice
 	Choice3_EventsToTrigger = BestMC_Row.Choice3.EventsToTrigger;
 }
 
-// Getting Best Dialogue Row Properties
 void USubsystem_Dialogue::GetBestDialogue_RowProperties(const FNPC_Dialogues& BestNPC_Row)
 {
 	NPC_DialogueID = BestNPC_Row.DialogueID;
@@ -267,92 +346,23 @@ void USubsystem_Dialogue::GetBestDialogue_RowProperties(const FNPC_Dialogues& Be
 }
 
 
-// Filtering Dialogues
-void USubsystem_Dialogue::FilterDialogues()
+// Adding Score Value
+void USubsystem_Dialogue::AddScoreValue(int ScoreToAdd, EScoreType ScoreType)
 {
-	FName BestNPC_DialogueRowName = ScoreNPC_Dialogues();
+	if (ScoreType == EScoreType::Choice)
+	{
+		ChoiceScore_Value += ScoreToAdd;
+	}
 
-	if (BestNPC_DialogueRowName.IsNone())
+	else if (ScoreType == EScoreType::Dialogue)
 	{
-		FinishDialogue();
-		return; 
-	}
-	
-	FNPC_Dialogues* npcFoundRow = DataTable_NPC->FindRow<FNPC_Dialogues>(BestNPC_DialogueRowName,"");
-	if (npcFoundRow)
-	{
-		GetBestDialogue_RowProperties(*npcFoundRow);
-	}
-	
-	FName BestChoice_RowName = ScoreMC_Choices();
-
-	if (BestChoice_RowName.IsNone())
-	{
-		FinishDialogue();
-		return; 
-	}
-	
-	FMainCharacterChoices* FoundMC_Row = DataTable_MainCharacter->FindRow<FMainCharacterChoices>(BestChoice_RowName,"");
-	if (FoundMC_Row)
-	{
-		GetBestChoice_RowProperties(*FoundMC_Row);
+		DialogueScore_Value += ScoreToAdd;
 	}
 }
 
-//Continue Dialogue
-void USubsystem_Dialogue::ContinueDialogue()
-{
-	FilterDialogues();
-	
-	if (NPC_EndOfDialogue)
-	{
-		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
-		ProcessedDialogues.AddUnique(NPC_DialogueID);
 
-		if (NPC_DialogueSound)
-		{
-			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
-			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
 
-			GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
-			//FinishDialogue();
-		}
-		else
-		{
-			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,3.f,false);
-			//FinishDialogue();
-		}
-	}
-	else
-	{
-		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
-		ProcessedDialogues.AddUnique(NPC_DialogueID);
 
-		if (NPC_DialogueSound)
-		{
-			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
-			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
-
-			GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
-
-		}
-		else
-		{
-			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,3.f,false);
-
-		}
-	}
-}
-
-void USubsystem_Dialogue::FinishDialogue()
-{
-	FInputModeGameOnly InputMode;
-	PlayerController->SetInputMode(InputMode);
-	PlayerController->bShowMouseCursor = false;
-
-	WBP_Dialogue->CloseDialogue();
-	WBP_Dialogue->CloseChoices();
-}
 
 
 void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
@@ -361,6 +371,8 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 
 	if (ChosenButton == EChosenOption::Choice1)
 	{
+		PrintString("Choice1 has been chosen",2.f,FColor::Red);
+		
 		if (Choice1_EndOfDialogue)
 		{
 			ProcessedChoices.AddUnique(Choice1_ID);
@@ -374,6 +386,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 	}
 	else if (ChosenButton == EChosenOption::Choice2)
 	{
+		PrintString("Choice2 has been chosen",2.f,FColor::Red);
 		if (Choice2_EndOfDialogue)
 		{
 			ProcessedChoices.AddUnique(Choice2_ID);
@@ -387,6 +400,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 	}
 	else if (ChosenButton == EChosenOption::Choice3)
 	{
+		PrintString("Choice3 has been chosen",2.f,FColor::Red);
 		if (Choice3_EndOfDialogue)
 		{
 			ProcessedChoices.AddUnique(Choice3_ID);

@@ -30,7 +30,7 @@ void UWidget_Dialogue::NativeConstruct()
 	UGameInstance* GI = GetGameInstance();
 	if (GI)
 	{
-		USubsystem_Dialogue* DialogueSubsystem = GI->GetSubsystem<USubsystem_Dialogue>();
+		Dialogue_Subsystem = GI->GetSubsystem<USubsystem_Dialogue>();
 		
 	}
 }
@@ -90,7 +90,13 @@ void UWidget_Dialogue::OnChoice1Clicked()
 {
 	if (Dialogue_Subsystem)
 	{
+		PrintString("Choice1 clicked and Subsystem is valid",2.f,FColor::Green);
 		Dialogue_Subsystem->MakeChoice(EChosenOption::Choice1);
+	}
+	else
+	{
+		
+		PrintString("Choice1 clicked and Subsystem is NOT valid",2.f,FColor::Green);
 	}
 }
 
@@ -98,7 +104,12 @@ void UWidget_Dialogue::OnChoice2Clicked()
 {
 	if (Dialogue_Subsystem)
 	{
+		PrintString("Choice2 clicked and Subsystem is valid",2.f,FColor::Yellow);
 		Dialogue_Subsystem->MakeChoice(EChosenOption::Choice2);
+	}
+	else
+	{
+		PrintString("Choice2 clicked and Subsystem is NOT valid",2.f,FColor::Yellow);
 	}
 }
 
@@ -106,6 +117,23 @@ void UWidget_Dialogue::OnChoice3Clicked()
 {
 	if (Dialogue_Subsystem)
 	{
+		PrintString("Choice3 clicked and Subsystem is valid",2.f,FColor::Blue);
 		Dialogue_Subsystem->MakeChoice(EChosenOption::Choice3);
 	}
+	else
+	{
+		PrintString("Choice3 clicked and Subsystem is NOT valid",2.f,FColor::Blue);
+	}
+}
+
+
+
+void UWidget_Dialogue::PrintString(const FString& Message, float Time, FColor Color)
+{
+	if (!GEngine)
+	{
+		return;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1,Time, Color, Message);
 }

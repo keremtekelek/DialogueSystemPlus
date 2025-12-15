@@ -98,5 +98,11 @@ public:
 
 	UFUNCTION()
 	void OnChoice3Clicked();
+
+
+
+	//DEBUG Functions
+	UFUNCTION()
+	static void PrintString(const FString& Message, float time, FColor Color);
 	
 };

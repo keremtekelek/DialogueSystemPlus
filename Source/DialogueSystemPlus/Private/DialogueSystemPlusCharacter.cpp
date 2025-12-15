@@ -42,13 +42,7 @@ ADialogueSystemPlusCharacter::ADialogueSystemPlusCharacter()
 	FollowCamera->bUsePawnControlRotation = true; 
 
 
-	DialogueWidgetRef = nullptr;
-
-	static ConstructorHelpers::FClassFinder<UWidget_Dialogue> WidgetBPClass(TEXT("/Game/01_MyContent/Blueprints/UI/WBP_Dialogue"));
-	if (WidgetBPClass.Succeeded())
-	{
-		DialogueWidgetClass = WidgetBPClass.Class;
-	}
+	
 	
 }
 
@@ -69,35 +63,15 @@ void ADialogueSystemPlusCharacter::BeginPlay()
 	if (UGameInstance* GI = GetGameInstance())
 	{
 		DialogueSubsystem = GI->GetSubsystem<USubsystem_Dialogue>();
-		
 	}
 
-	if (DialogueWidgetClass)
+	if (DialogueSubsystem)
 	{
-		DialogueWidgetRef = CreateWidget<UWidget_Dialogue>(GetWorld(), DialogueWidgetClass);
+		DialogueSubsystem->DSM_MainCharacter = DSM_MainCharacter;
+		DialogueSubsystem->DataTable_MainCharacter = DataTable_MainCharacter;
 
-		if (DialogueWidgetRef)
-		{
-			DialogueWidgetRef->AddToViewport();
-
-			if (DialogueSubsystem)
-			{
-				DialogueSubsystem->WBP_Dialogue = DialogueWidgetRef;
-				DialogueSubsystem->DSM_MainCharacter = DSM_MainCharacter;
-				DialogueSubsystem->DataTable_MainCharacter = DataTable_MainCharacter;
-
-				DialogueSubsystem->MainCharacter = this;
-
-				APlayerController* PlayerController = Cast<APlayerController>(GetController());
-
-				if (PlayerController)
-				{
-					DialogueSubsystem->PlayerController = PlayerController;
-				}
-			}
-		}
+		DialogueSubsystem->MainCharacter = this;
 	}
-
 }
 
 

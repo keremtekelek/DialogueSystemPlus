@@ -22,6 +22,7 @@
 
 class UAC_InteractionSystem;
 class ADialogueSystemPlusCharacter;
+class APlayerControllerCPP;
 
 
 UENUM(BlueprintType)
@@ -196,7 +197,7 @@ public:
 	// Player Controller	
 
 	UPROPERTY()
-	APlayerController* PlayerController;
+	APlayerControllerCPP* PlayerController;
 	
 
 	//***FUNCTIONS***
