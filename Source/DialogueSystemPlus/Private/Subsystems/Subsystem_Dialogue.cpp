@@ -1,7 +1,11 @@
 #include "Subsystems/Subsystem_Dialogue.h"
+
+#include "DialogueSystemPlus.h"
 #include "GameplayTagsManager.h"
 #include "ActorComponents/AC_InteractionSystem.h"
 #include "DialogueSystemPlusCharacter.h"
+#include "DSP/PassiveFilter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerController/PlayerControllerCPP.h"
 
 
@@ -27,7 +31,6 @@ void USubsystem_Dialogue::Interacted()
 	if (IsValid(AC_InteractionSystem) && AC_InteractionSystem->CanMainCharacterInteract == true)
 	{
 		GettingVariables();
-
 		StartDialogue();
 	}
 }
@@ -62,10 +65,20 @@ void USubsystem_Dialogue::ContinueDialogue()
 {
 	PrintString("Continue Dialogue has been called",2.f,FColor::Red);
 	
-	FilterDialogues();
+	 if (FilterDialogues() == false)
+	 {
+	 	PrintString("Filter Dialogue has been failed", 2.f,FColor::Magenta);
+		 return;
+	 }
 	
+	//***Starting Dialogue***
 	if (NPC_EndOfDialogue)
 	{
+		if (ProcessedDialogues.Contains(NPC_DialogueID))
+		{
+			return;
+		}
+		
 		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
 
@@ -85,6 +98,11 @@ void USubsystem_Dialogue::ContinueDialogue()
 	}
 	else
 	{
+		if (ProcessedDialogues.Contains(NPC_DialogueID))
+		{
+			return;
+		}
+		
 		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
 
@@ -99,20 +117,20 @@ void USubsystem_Dialogue::ContinueDialogue()
 		else
 		{
 			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,3.f,false);
-
+			
 		}
 	}
 }
 
 // Filtering Dialogues
-void USubsystem_Dialogue::FilterDialogues()
+bool USubsystem_Dialogue::FilterDialogues()
 {
 	FName BestNPC_DialogueRowName = ScoreNPC_Dialogues();
 
 	if (BestNPC_DialogueRowName.IsNone())
 	{
 		//FinishDialogue();
-		return; 
+		return false; 
 	}
 	else
 	{
@@ -120,6 +138,10 @@ void USubsystem_Dialogue::FilterDialogues()
 		if (npcFoundRow)
 		{
 			GetBestDialogue_RowProperties(*npcFoundRow);
+		}
+		else
+		{
+			return false;
 		}
 	}
 	
@@ -130,7 +152,7 @@ void USubsystem_Dialogue::FilterDialogues()
 	if (BestChoice_RowName.IsNone())
 	{
 		//FinishDialogue();
-		return; 
+		return false; 
 	}
 	else
 	{
@@ -139,9 +161,13 @@ void USubsystem_Dialogue::FilterDialogues()
 		{
 			GetBestChoice_RowProperties(*FoundMC_Row);
 		}
+		else
+		{
+			return false;
+		}
 	}
 	
-	
+	return true;
 }
 
 void USubsystem_Dialogue::FinishDialogue()
@@ -376,6 +402,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		if (Choice1_EndOfDialogue)
 		{
 			ProcessedChoices.AddUnique(Choice1_ID);
+			
 			FinishDialogue();
 		}
 		else
@@ -383,6 +410,8 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 			ProcessedChoices.Add(Choice1_ID);
 			ContinueDialogue();
 		}
+		
+		AC_DialogueSystem->AddMoodValue(Choice1_EffectsMood);
 	}
 	else if (ChosenButton == EChosenOption::Choice2)
 	{
@@ -397,6 +426,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 			ProcessedChoices.AddUnique(Choice2_ID);
 			ContinueDialogue();
 		}
+		AC_DialogueSystem->AddMoodValue(Choice2_EffectsMood);
 	}
 	else if (ChosenButton == EChosenOption::Choice3)
 	{
@@ -411,6 +441,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 			ProcessedChoices.AddUnique(Choice3_ID);
 			ContinueDialogue();
 		}
+		AC_DialogueSystem->AddMoodValue(Choice3_EffectsMood);
 	}
 
 	
@@ -422,8 +453,13 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 {
 	WBP_Dialogue->ShowChoices(Choice1_Text, Choice2_Text, Choice3_Text);
+	
+	//PlayerController->StopMovement();
+	//MainCharacter->GetCharacterMovement()->StopMovementImmediately();
 
+	PlayerController->SetIgnoreMoveInput(true);
 	PlayerController->StopMovement();
+	MainCharacter->GetCharacterMovement()->StopMovementImmediately();
 	
 	
 	FInputModeUIOnly InputMode;
@@ -432,6 +468,8 @@ void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 	PlayerController->SetInputMode(InputMode);
 	PlayerController->bShowMouseCursor = true;
 
+	
+	
 	GetWorld()->GetTimerManager().ClearTimer(DelayShowChoiceHandle);
 
 	PrintString("ShowChoiceAfterSeconds function has been called",2.f,FColor::Red);

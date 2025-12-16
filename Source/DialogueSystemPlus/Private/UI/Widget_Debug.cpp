@@ -77,10 +77,15 @@ void UWidget_Debug::UpdateDebugData()
        int32 DialogueScore_Value = DialogueSubsystem->DialogueScore_Value;
        int32 ChoiceScore_Value = DialogueSubsystem->ChoiceScore_Value;
 
+    	FText choicetext = DialogueSubsystem->NPC_DialogueText;
+    	FString NPC_DialogueText = choicetext.ToString();
+    	
+
        FString FinalText = FString::Printf(TEXT(
           "--- DEBUG DASHBOARD ---\n"
           "NPC Data Table       : %s\n"
           "Interacted Character : %s\n"
+          "NPC Dialogue Text    : %s\n"
           "Dialogue Score       : %d\n"
           "Choice Score         : %d\n"
           "Chosen Choice        : %s\n"
@@ -90,7 +95,8 @@ void UWidget_Debug::UpdateDebugData()
           "-----------------------"
           ), 
           *DT_NPC_Name, 
-          *InteractedCharacterStr, 
+          *InteractedCharacterStr,
+          *NPC_DialogueText,
           DialogueScore_Value, 
           ChoiceScore_Value, 
           *ChosenChoiceStr, 

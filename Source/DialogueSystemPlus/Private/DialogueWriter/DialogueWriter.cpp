@@ -73,9 +73,7 @@ void UDialogueWriter::GenerateDialogueData()
 				
 					RootNPC_Nodes.Add(NPCNode);
 				}
-				
 			}
-			
 		}
 	}
 			
@@ -206,9 +204,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 			NPCNode->NPC_Row.EndOfDialogue = true;
 			
 			AddToDataTable(NPCNode);
-			
 		}
-		
 		
 	}
 	

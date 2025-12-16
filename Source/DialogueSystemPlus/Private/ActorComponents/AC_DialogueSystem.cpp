@@ -72,9 +72,14 @@ void UAC_DialogueSystem::AddMoodValue(int MoodValueToAdd)
 {
 	if (IsValid(Owner) && Owner->GetClass()->ImplementsInterface(UInterface_NPC_Mood::StaticClass()))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Mood Value has been worked. Value is:%d"),MoodValueToAdd);
 		IInterface_NPC_Mood::Execute_AddMoodValue(Owner, MoodValueToAdd);
-	}
 
-	
+		//MoodValue = IInterface_NPC_Mood::Execute_GetMoodValue(Owner);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Mood Value not worked. Value to add is:%d"),MoodValueToAdd);
+	}
 }
 

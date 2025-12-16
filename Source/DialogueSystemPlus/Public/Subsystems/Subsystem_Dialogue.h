@@ -192,6 +192,7 @@ public:
 	
 
 	//Chosen Button
+	UPROPERTY()
 	EChosenOption ChosenChoice = EChosenOption::None;
 
 	// Player Controller	
@@ -234,7 +235,7 @@ public:
 	void GetBestChoice_RowProperties(const FMainCharacterChoices& BestMC_Row);
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
-	void FilterDialogues();
+	bool FilterDialogues();
 
 	
 	
