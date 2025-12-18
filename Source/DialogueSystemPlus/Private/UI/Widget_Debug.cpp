@@ -11,10 +11,10 @@ void UWidget_Debug::NativeConstruct()
        DialogueSubsystem = GI->GetSubsystem<USubsystem_Dialogue>();
     }
 
-	Debug_Text->SetVisibility(ESlateVisibility::Visible);
-	DebugBorder->SetVisibility(ESlateVisibility::Visible);
+	Debug_Text->SetVisibility(ESlateVisibility::Hidden);
+	DebugBorder->SetVisibility(ESlateVisibility::Hidden);
 
-    GetWorld()->GetTimerManager().SetTimer(UpdateTimerHandle, this, &UWidget_Debug::UpdateDebugData, 0.2f, true);
+   // GetWorld()->GetTimerManager().SetTimer(UpdateTimerHandle, this, &UWidget_Debug::UpdateDebugData, 0.2f, true);
 }
 
 void UWidget_Debug::NativeDestruct()
@@ -24,8 +24,8 @@ void UWidget_Debug::NativeDestruct()
 }
 
 void UWidget_Debug::UpdateDebugData()
-{
-    if (DialogueSubsystem && Debug_Text)
+{ /*
+	if (DialogueSubsystem && Debug_Text)
     {
        FString DT_NPC_Name = TEXT("NONE");
        if (DialogueSubsystem->DataTable_NPC)
@@ -107,4 +107,6 @@ void UWidget_Debug::UpdateDebugData()
 
        Debug_Text->SetText(FText::FromString(FinalText));
     }
+	*/
+    
 }

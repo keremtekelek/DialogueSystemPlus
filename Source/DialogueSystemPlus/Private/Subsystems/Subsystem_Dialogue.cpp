@@ -22,7 +22,7 @@ void USubsystem_Dialogue::Initialize(FSubsystemCollectionBase& Collection)
 	
 	ProcessedChoices.Empty();
 	ProcessedDialogues.Empty();
-	ProcessedGlobalEvents.Empty();
+	ProcessedGlobalEvents.Reset();
 
 	DSM_MainCharacter.Empty();
 	DSM_NPC.Empty();
@@ -45,6 +45,8 @@ void USubsystem_Dialogue::Tick(float DeltaTime)
 		if (EventManager_Subsystem)
 		{
 			ProcessedGlobalEvents = EventManager_Subsystem->TriggeredEvents;
+
+			UE_LOG(LogTemp, Warning, TEXT("Processed Tags: %s"), *ProcessedGlobalEvents.ToStringSimple());
 		}
 		 
 		TimeSinceLastTick -= TickInterval; 
@@ -245,11 +247,15 @@ FName USubsystem_Dialogue::ScoreMC_Choices()
 
 
 			//Scoring Choices
-			for (FName Choice1_GlobalEvent: ChoiceRow->Choice1.RelatedGlobalEvents)
+			
+			FGameplayTagContainer RequiredTags = ChoiceRow->Choice1.RelatedGlobalEvents;
+        
+			for (auto It = RequiredTags.CreateConstIterator(); It; ++It)
 			{
-				if (ProcessedGlobalEvents.Contains(Choice1_GlobalEvent))
+				
+				if (ProcessedGlobalEvents.HasTag(*It))
 				{
-					AddScoreValue(1,EScoreType::Choice);
+					AddScoreValue(1, EScoreType::Choice);
 				}
 			}
 
@@ -318,15 +324,17 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 		for (const auto DialogueRow: DialogueRows)
 		{
 			DialogueScore_Value = 0;
-			
-			for (FName NPC_GlobalEvent: DialogueRow->RelatedGlobalEvents)
+
+			FGameplayTagContainer RequiredTags = DialogueRow->RelatedGlobalEvents;
+        
+			for (auto It = RequiredTags.CreateConstIterator(); It; ++It)
 			{
-				if (ProcessedGlobalEvents.Contains(NPC_GlobalEvent))
+				if (ProcessedGlobalEvents.HasTag(*It))
 				{
-					AddScoreValue(1,EScoreType::Dialogue);
+					AddScoreValue(1, EScoreType::Dialogue);
 				}
 			}
-
+			
 			for (FName NPC_Choice: DialogueRow->RelatedNPC_Choices)
 			{
 				if (ProcessedChoices.Contains(NPC_Choice))

@@ -9,6 +9,7 @@
 #include "Engine/DataTable.h"
 #include "ActorComponents/AC_InteractionSystem.h"
 #include "ActorComponents/AC_DialogueSystem.h"
+#include "GameplayTagContainer.h"
 #include "NPC_Character_Base.generated.h"
 
 class USubsystem_EventManager;
@@ -39,7 +40,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Character")
 	FName CharacterName;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "NPC Character")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Subsystems")
 	USubsystem_EventManager* Subsystem_EventManager;
 
 
@@ -80,6 +81,9 @@ public:
 public:
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Event Manager Functions")
-	void HandleGameEvent(FName EventName);
+	void HandleGameEvent(FGameplayTag EventTag);
+
+	UFUNCTION()
+	void EventReceived(FGameplayTag EventTag);
 
 };

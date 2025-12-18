@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataTable.h"
 #include "Enums/GlobalEnums.h"
+#include "GameplayTagContainer.h"
 #include "S_MainCharacterChoices.generated.h"
 
 USTRUCT(BlueprintType)
@@ -23,10 +24,10 @@ struct FChoice1
 	TArray<FName> RelatedNPC_Choices;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> RelatedGlobalEvents;
+	FGameplayTagContainer RelatedGlobalEvents;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> EventsToTrigger;
+	FGameplayTagContainer EventsToTrigger;
 
 	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data") // auto
 	bool EndOfDialogue = false;
@@ -56,10 +57,10 @@ struct FChoice2
 	TArray<FName> RelatedNPC_Choices;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> RelatedGlobalEvents;
+	FGameplayTagContainer RelatedGlobalEvents;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> EventsToTrigger;
+	FGameplayTagContainer EventsToTrigger;
 
 	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	bool EndOfDialogue = false;
@@ -89,10 +90,10 @@ struct FChoice3
 	TArray<FName> RelatedNPC_Choices;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> RelatedGlobalEvents;
+	FGameplayTagContainer RelatedGlobalEvents;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> EventsToTrigger;
+	FGameplayTagContainer EventsToTrigger;
 
 	UPROPERTY(EditAnywhere,Category="Auto Generated Choice Data")
 	bool EndOfDialogue = false;

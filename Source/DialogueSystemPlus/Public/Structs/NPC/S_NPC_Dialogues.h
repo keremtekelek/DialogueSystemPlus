@@ -4,6 +4,7 @@
 #include "Engine/DataTable.h"
 #include "Enums/GlobalEnums.h"
 #include "Sound/SoundBase.h"
+#include "GameplayTagContainer.h"
 #include "S_NPC_Dialogues.generated.h"
 
 USTRUCT(BlueprintType)
@@ -27,10 +28,10 @@ struct FNPC_Dialogues : public FTableRowBase
 	TArray<FName> RelatedNPC_Choices;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> RelatedGlobalEvents;
+	FGameplayTagContainer RelatedGlobalEvents;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FName> EventsToTrigger;
+	FGameplayTagContainer EventsToTrigger;
 
 	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") // auto  +
 	bool EndOfDialogue;

@@ -20,6 +20,7 @@ class UInputAction;
 struct FInputActionValue;
 
 class USubsystem_Dialogue;
+class USubsystem_EventManager;
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
@@ -57,8 +58,11 @@ class ADialogueSystemPlusCharacter : public ACharacter, public IInterface_MainCh
 	UPROPERTY()
 	bool IsCharacterSprinting = false;
 
+	//
+
 	
 
+	
 public:
 	ADialogueSystemPlusCharacter();
 	
@@ -85,6 +89,9 @@ protected:
 
 public:
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Subsystems")
+	USubsystem_EventManager* Subsystem_EventManager;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
 	TMap<FName, int32> DSM_MainCharacter;
 
@@ -98,7 +105,11 @@ public:
 
 public:
 
-	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event Manager Functions")
+	void HandleGameEvent(FGameplayTag EventTag);
+
+	UFUNCTION()
+	void EventReceived(FGameplayTag EventTag);
 	
 	
 };

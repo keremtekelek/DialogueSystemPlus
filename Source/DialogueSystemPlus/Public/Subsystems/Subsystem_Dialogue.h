@@ -117,7 +117,7 @@ public:
 	TArray<FName> ProcessedChoices;
 
 	UPROPERTY(VisibleAnywhere)
-	TArray<FName> ProcessedGlobalEvents;
+	FGameplayTagContainer ProcessedGlobalEvents;
 
 	
 
@@ -144,7 +144,7 @@ public:
 	bool NPC_EndOfDialogue;
 
 	UPROPERTY()
-	TArray<FName> NPC_EventsToTrigger;
+	FGameplayTagContainer NPC_EventsToTrigger;
 
 	//Best Main Character Choice Row Properties
 
@@ -178,13 +178,13 @@ public:
 	bool Choice3_EndOfDialogue;
 
 	UPROPERTY()
-	TArray<FName> Choice1_EventsToTrigger;
+	FGameplayTagContainer Choice1_EventsToTrigger;
 
 	UPROPERTY()
-	TArray<FName> Choice2_EventsToTrigger;
+	FGameplayTagContainer Choice2_EventsToTrigger;
 
 	UPROPERTY()
-	TArray<FName> Choice3_EventsToTrigger;
+	FGameplayTagContainer Choice3_EventsToTrigger;
 
 	UPROPERTY()
 	int Choice1_EffectsMood;

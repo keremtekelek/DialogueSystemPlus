@@ -41,7 +41,7 @@ void ANPC_Character_Base::BeginPlay()
 		if (USubsystem_EventManager* EventSubsystem = GI->GetSubsystem<USubsystem_EventManager>())
 		{
 			Subsystem_EventManager = EventSubsystem;
-			Subsystem_EventManager->OnGlobalEventTriggered.AddDynamic(this, &ANPC_Character_Base::HandleGameEvent);
+			Subsystem_EventManager->OnGlobalEventTriggered.AddDynamic(this, &ANPC_Character_Base::EventReceived);
 		}
 	}
 }
@@ -150,6 +150,11 @@ EConversationPartner ANPC_Character_Base::GetInteractedCharacter_Implementation(
 	{
 		return EConversationPartner::DoesntMatter;
 	}
+}
+
+void ANPC_Character_Base::EventReceived(FGameplayTag EventTag)
+{
+	HandleGameEvent(EventTag);
 }
 
 

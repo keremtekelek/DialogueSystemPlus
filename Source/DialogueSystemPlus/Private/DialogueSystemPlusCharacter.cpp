@@ -8,6 +8,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Subsystems/Subsystem_Dialogue.h"
+#include "Subsystems/Subsystem_EventManager.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -71,6 +72,15 @@ void ADialogueSystemPlusCharacter::BeginPlay()
 		DialogueSubsystem->DataTable_MainCharacter = DataTable_MainCharacter;
 
 		DialogueSubsystem->MainCharacter = this;
+	}
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (USubsystem_EventManager* EventSubsystem = GI->GetSubsystem<USubsystem_EventManager>())
+		{
+			Subsystem_EventManager = EventSubsystem;
+			Subsystem_EventManager->OnGlobalEventTriggered.AddDynamic(this, &ADialogueSystemPlusCharacter::EventReceived);
+		}
 	}
 }
 
@@ -181,3 +191,7 @@ void ADialogueSystemPlusCharacter::Interact(const FInputActionValue& Value)
 }
 
 
+void ADialogueSystemPlusCharacter::EventReceived(FGameplayTag EventTag)
+{
+	HandleGameEvent(EventTag);
+}

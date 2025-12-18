@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Tickable.h"
+#include "GameplayTagContainer.h"
 #include "Subsystem_EventManager.generated.h"
 
 //class USubsystem_Dialogue;
@@ -10,7 +11,8 @@
  * 
  */
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGlobalEventTriggered, FName, EventName);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGlobalEventTriggered, FGameplayTag, EventTag);
 
 UCLASS()
 class DIALOGUESYSTEMPLUS_API USubsystem_EventManager : public UGameInstanceSubsystem, public FTickableGameObject
@@ -33,13 +35,12 @@ public:
 	
 	// Variables about events
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TArray<FName>RemainingEvents;
+	FGameplayTagContainer RemainingEvents;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TArray<FName> TriggeredEvents;
+	FGameplayTagContainer TriggeredEvents;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	TArray<FName> AllEvents;
+	
 
 	// Tick Variables
 	UPROPERTY()
@@ -50,22 +51,12 @@ public:
 public:
 
 	UFUNCTION(BlueprintCallable)
-	void TriggerEvent(TArray<FName> EventNameToTrigger);
-
-	UFUNCTION(BlueprintCallable)
-	void AddEventName(FName EventName);
-
-	UFUNCTION()
-	FName NormalizeEventName(FName EventNameToNormalize);
-
-	UFUNCTION()
-	TArray<FName> GetUnProcessedEvents();
+	void TriggerEvent(FGameplayTagContainer EventNameToTrigger);
 
 	UFUNCTION()
 	static void PrintString(const FString& Message, float time, FColor Color);
 
-	UFUNCTION()
-	void DebuggningEvents();
+	
 
 	
 	

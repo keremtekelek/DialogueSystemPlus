@@ -8,6 +8,6 @@ public class DialogueSystemPlus : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Slate", "SlateCore", "UnrealEd", "BlueprintGraph", "KismetCompiler", "GraphEditor" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "Slate", "SlateCore", "UnrealEd", "BlueprintGraph", "KismetCompiler", "GraphEditor", "GameplayTags" });
 	}
 }
