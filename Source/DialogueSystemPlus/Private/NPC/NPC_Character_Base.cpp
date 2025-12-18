@@ -1,4 +1,5 @@
 #include "NPC/NPC_Character_Base.h"
+#include "Subsystems/Subsystem_EventManager.h"
 
 
 ANPC_Character_Base::ANPC_Character_Base()
@@ -34,6 +35,15 @@ void ANPC_Character_Base::BeginPlay()
 	Super::BeginPlay();
 
 	WidgetComp->InitWidget();
+
+	if (UGameInstance* GI = GetGameInstance())
+	{
+		if (USubsystem_EventManager* EventSubsystem = GI->GetSubsystem<USubsystem_EventManager>())
+		{
+			Subsystem_EventManager = EventSubsystem;
+			Subsystem_EventManager->OnGlobalEventTriggered.AddDynamic(this, &ANPC_Character_Base::HandleGameEvent);
+		}
+	}
 }
 
 
@@ -141,5 +151,6 @@ EConversationPartner ANPC_Character_Base::GetInteractedCharacter_Implementation(
 		return EConversationPartner::DoesntMatter;
 	}
 }
+
 
 

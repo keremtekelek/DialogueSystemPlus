@@ -11,6 +11,8 @@
 #include "ActorComponents/AC_DialogueSystem.h"
 #include "NPC_Character_Base.generated.h"
 
+class USubsystem_EventManager;
+
 UCLASS()
 class DIALOGUESYSTEMPLUS_API ANPC_Character_Base : public ACharacter, public IInterface_NPC_Mood
 {
@@ -36,6 +38,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Character")
 	FName CharacterName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "NPC Character")
+	USubsystem_EventManager* Subsystem_EventManager;
 
 
 	
@@ -70,5 +75,11 @@ public:
 	virtual UAC_DialogueSystem* GetDialogueSystemComponent_Implementation() override;
 	virtual void GetDataTableAndScoreData_Implementation(UDataTable*& NPC_DataTable, TMap<FName, int32>& DSM_NPCC) override;
 	virtual EConversationPartner GetInteractedCharacter_Implementation() override;
+
+
+public:
+	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Event Manager Functions")
+	void HandleGameEvent(FName EventName);
 
 };

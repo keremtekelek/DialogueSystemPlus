@@ -61,6 +61,7 @@ void USubsystem_EventManager::TriggerEvent(TArray<FName> EventNameToTrigger)
 
 			//*** Make Triggered Event Happen ***
 
+			
 			if ("demostarted" == NormalizedIncomingEvent)
 			{
 				PrintString(" demostarted is triggered ",10.f,FColor::Blue);
@@ -68,6 +69,12 @@ void USubsystem_EventManager::TriggerEvent(TArray<FName> EventNameToTrigger)
 			else if ("potatosellerangry" == NormalizedIncomingEvent)
 			{
 				PrintString("Potato Seller Angy is triggered", 7.f,FColor::Red);
+			}
+
+			if (OnGlobalEventTriggered.IsBound())
+			{
+				
+				OnGlobalEventTriggered.Broadcast(NormalizedIncomingEvent);
 			}
 			
 		}

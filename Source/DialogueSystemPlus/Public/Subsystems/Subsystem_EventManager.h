@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGlobalEventTriggered, FName, EventName);
+
 UCLASS()
 class DIALOGUESYSTEMPLUS_API USubsystem_EventManager : public UGameInstanceSubsystem, public FTickableGameObject
 {
@@ -25,6 +28,9 @@ protected:
 	
 public:
 
+	UPROPERTY(BlueprintAssignable, Category = "Event System")
+	FOnGlobalEventTriggered OnGlobalEventTriggered;
+	
 	// Variables about events
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	TArray<FName>RemainingEvents;
