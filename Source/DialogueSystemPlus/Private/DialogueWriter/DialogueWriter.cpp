@@ -334,10 +334,26 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 		if (TargetTable)
 		{ 
 			FName RowName = NPCNode->NPC_Row.DialogueID;
+
+			/*
+			* if (TargetTable->GetRowMap().Contains(RowName))
+			{
+				return;
+			}
+			else
+			{
+				TargetTable->AddRow(NPCNode->NPC_Row.DialogueID, NPCNode->NPC_Row);
+			}
+			 */
 			
 			if (TargetTable->GetRowMap().Contains(RowName))
 			{
-				return;
+				FNPC_Dialogues* ExistingRow = TargetTable->FindRow<FNPC_Dialogues>(RowName, "");
+                
+				if (ExistingRow)
+				{
+					*ExistingRow = NPCNode->NPC_Row;
+				}
 			}
 			else
 			{
@@ -349,10 +365,26 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 	else if (UMainCharacterChoices_Node* MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(NodeToAddDataTable))
 	{
 		FName RowName = MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1;
+
+		/*
+		* if (DT_MainCharacter->GetRowMap().Contains(RowName))
+		{
 			
+			return;
+		}
+		else
+		{
+			DT_MainCharacter->AddRow(MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1, MainCharacterChoicesNode->AllChoice_Row);
+		}
+		 */
+		
 		if (DT_MainCharacter->GetRowMap().Contains(RowName))
 		{
-			return;
+			FMainCharacterChoices* ExistingRow = DT_MainCharacter->FindRow<FMainCharacterChoices>(RowName, "");
+			if (ExistingRow)
+			{
+				*ExistingRow = MainCharacterChoicesNode->AllChoice_Row;
+			}
 		}
 		else
 		{

@@ -18,11 +18,13 @@
 #include "Sound/SoundBase.h"
 #include "Enums/GlobalEnums.h"
 #include "DialogueSystemPlusCharacter.h"
+#include "Tickable.h"
 #include "Subsystem_Dialogue.generated.h"
 
 class UAC_InteractionSystem;
 class ADialogueSystemPlusCharacter;
 class APlayerControllerCPP;
+class USubsystem_EventManager;
 
 
 UENUM(BlueprintType)
@@ -38,20 +40,25 @@ enum class EScoreType : uint8
  * 
  */
 UCLASS()
-class DIALOGUESYSTEMPLUS_API USubsystem_Dialogue : public UGameInstanceSubsystem
+class DIALOGUESYSTEMPLUS_API USubsystem_Dialogue : public UGameInstanceSubsystem, public FTickableGameObject
 {
 	GENERATED_BODY()
 	
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+	
+	virtual void Tick(float DeltaTime) override; 
+	virtual ETickableTickType GetTickableTickType() const override;
+	virtual TStatId GetStatId() const override;
 
 	
 
 	//***VARIABLES***
 public:
 
-	
+	UPROPERTY()
+	USubsystem_EventManager* EventManager_Subsystem;
 	
 	// Actor Components
 	UPROPERTY(EditAnywhere, Category = "Components")
@@ -111,6 +118,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	TArray<FName> ProcessedGlobalEvents;
+
+	
 
 	// Score Values
 	UPROPERTY(VisibleAnywhere)
@@ -195,10 +204,17 @@ public:
 	UPROPERTY()
 	EChosenOption ChosenChoice = EChosenOption::None;
 
+	
 	// Player Controller	
-
 	UPROPERTY()
 	APlayerControllerCPP* PlayerController;
+
+	// Tick Variables
+	UPROPERTY()
+	float TickInterval = 0.5f; 
+
+	UPROPERTY()
+	float TimeSinceLastTick = 0.0f;
 	
 
 	//***FUNCTIONS***

@@ -1,16 +1,25 @@
 #include "Subsystems/Subsystem_Dialogue.h"
-
 #include "DialogueSystemPlus.h"
 #include "GameplayTagsManager.h"
 #include "ActorComponents/AC_InteractionSystem.h"
 #include "DialogueSystemPlusCharacter.h"
-#include "DSP/PassiveFilter.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "PlayerController/PlayerControllerCPP.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Subsystems/Subsystem_EventManager.h"
 
 
 void USubsystem_Dialogue::Initialize(FSubsystemCollectionBase& Collection)
 {
+	Super::Initialize(Collection);
+
+	USubsystem_EventManager* eventSubsystem= Collection.InitializeDependency<USubsystem_EventManager>();
+
+	if (eventSubsystem)
+	{
+		EventManager_Subsystem = eventSubsystem;
+	}
+	
+	
 	ProcessedChoices.Empty();
 	ProcessedDialogues.Empty();
 	ProcessedGlobalEvents.Empty();
@@ -22,8 +31,40 @@ void USubsystem_Dialogue::Initialize(FSubsystemCollectionBase& Collection)
 
 void USubsystem_Dialogue::Deinitialize()
 {
-	
+	Super::Deinitialize();
 }
+
+void USubsystem_Dialogue::Tick(float DeltaTime)
+{
+	TimeSinceLastTick += DeltaTime;
+
+	if (TimeSinceLastTick >= TickInterval)
+	{
+		//***WRITE CODES ABOUT TICK IN HERE!***
+
+		if (EventManager_Subsystem)
+		{
+			ProcessedGlobalEvents = EventManager_Subsystem->TriggeredEvents;
+		}
+		 
+		TimeSinceLastTick -= TickInterval; 
+	}
+}
+
+ETickableTickType USubsystem_Dialogue::GetTickableTickType() const
+{
+	return (IsTemplate() ? ETickableTickType::Never : ETickableTickType::Always);
+}
+
+TStatId USubsystem_Dialogue::GetStatId() const
+{
+	
+	RETURN_QUICK_DECLARE_CYCLE_STAT(USubsystem_EventManager, STATGROUP_Tickables);
+}
+
+
+
+
 
 // This function works when interaction started with Main Character with NPC.
 void USubsystem_Dialogue::Interacted()
@@ -81,6 +122,8 @@ void USubsystem_Dialogue::ContinueDialogue()
 		
 		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
+		EventManager_Subsystem->TriggerEvent(NPC_EventsToTrigger);
+		
 
 		if (NPC_DialogueSound)
 		{
@@ -105,6 +148,7 @@ void USubsystem_Dialogue::ContinueDialogue()
 		
 		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
+		EventManager_Subsystem->TriggerEvent(NPC_EventsToTrigger);
 
 		if (NPC_DialogueSound)
 		{
@@ -177,6 +221,7 @@ void USubsystem_Dialogue::FinishDialogue()
 	FInputModeGameOnly InputMode;
 	PlayerController->SetInputMode(InputMode);
 	PlayerController->bShowMouseCursor = false;
+	PlayerController->SetIgnoreMoveInput(false);
 
 	WBP_Dialogue->CloseDialogue();
 	WBP_Dialogue->CloseChoices();
@@ -232,8 +277,6 @@ FName USubsystem_Dialogue::ScoreMC_Choices()
 			//Adding Row name and score value to DSM_MainCharacter
 			
 			DSM_MainCharacter.Add(ChoiceRow->Choice1.ChoiceID1, ChoiceScore_Value);
-			
-
 		}
 
 		FName BestChoiceID = NAME_None;
@@ -412,6 +455,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		}
 		
 		AC_DialogueSystem->AddMoodValue(Choice1_EffectsMood);
+		EventManager_Subsystem->TriggerEvent(Choice1_EventsToTrigger);
 	}
 	else if (ChosenButton == EChosenOption::Choice2)
 	{
@@ -427,6 +471,8 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 			ContinueDialogue();
 		}
 		AC_DialogueSystem->AddMoodValue(Choice2_EffectsMood);
+		EventManager_Subsystem->TriggerEvent(Choice2_EventsToTrigger);
+		
 	}
 	else if (ChosenButton == EChosenOption::Choice3)
 	{
@@ -442,9 +488,8 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 			ContinueDialogue();
 		}
 		AC_DialogueSystem->AddMoodValue(Choice3_EffectsMood);
+		EventManager_Subsystem->TriggerEvent(Choice3_EventsToTrigger);
 	}
-
-	
 }
 
 
