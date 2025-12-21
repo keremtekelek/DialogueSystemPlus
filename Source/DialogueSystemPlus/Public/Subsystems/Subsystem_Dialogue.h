@@ -216,6 +216,9 @@ public:
 	UPROPERTY()
 	float TimeSinceLastTick = 0.0f;
 	
+	UPROPERTY()
+	int MinimumDialogueLength = 1.5;
+	
 
 	//***FUNCTIONS***
 public:
@@ -264,6 +267,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void MakeChoice(EChosenOption ChosenButton);
+	
+	UFUNCTION(BlueprintCallable)
+	float CalculateDialogueDuration(FText DialogueText);
 
 
 	// DEBUG

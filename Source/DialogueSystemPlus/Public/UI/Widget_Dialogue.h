@@ -10,6 +10,7 @@
 #include "Components/CanvasPanel.h"   
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
+#include "Components/SizeBox.h"
 #include "Widget_Dialogue.generated.h"
 
 class USubsystem_Dialogue;
@@ -37,6 +38,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UBorder* DialogueBorder;
+	
+	UPROPERTY(meta = (BindWidget))
+	USizeBox* DialogueSizeBox;
 
 	UPROPERTY(meta = (BindWidget))
 	UButton* Choice1;

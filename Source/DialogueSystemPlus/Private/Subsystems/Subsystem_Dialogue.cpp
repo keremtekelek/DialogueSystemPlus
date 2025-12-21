@@ -133,12 +133,12 @@ void USubsystem_Dialogue::ContinueDialogue()
 			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
 
 			GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
-			//FinishDialogue();
+			
 		}
 		else
 		{
-			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,3.f,false);
-			//FinishDialogue();
+			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,CalculateDialogueDuration(NPC_DialogueText),false);
+			
 		}
 	}
 	else
@@ -162,7 +162,7 @@ void USubsystem_Dialogue::ContinueDialogue()
 		}
 		else
 		{
-			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,3.f,false);
+			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,CalculateDialogueDuration(NPC_DialogueText),false);
 			
 		}
 	}
@@ -500,6 +500,16 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 	}
 }
 
+
+float USubsystem_Dialogue::CalculateDialogueDuration(FText DialogueText)
+{
+	FString DialogueTextString = DialogueText.ToString();
+	int DialogueLength = DialogueTextString.Len();
+	
+	float CalculatedDuration = (DialogueLength * 0.07f) + MinimumDialogueLength;
+	
+	return CalculatedDuration;
+}
 
 
 // Timer Functions
