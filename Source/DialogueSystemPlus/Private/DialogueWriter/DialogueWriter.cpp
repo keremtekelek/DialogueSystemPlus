@@ -25,6 +25,7 @@ void UDialogueWriter::GenerateDialogueData()
 	RootNPC_Nodes.Empty(); // Can be changed
 	ActiveIDs.Empty(); 
 	
+	// Checking for if graph has some nodes.
 	bool GraphHasNodes = false;
 	
     for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
@@ -43,6 +44,42 @@ void UDialogueWriter::GenerateDialogueData()
     	
     	return;
     }
+	
+	
+	// Checking for illegal root(especially for root choice node)
+	bool FoundIllegalRoot = false;
+
+	for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
+	{
+		if (!Graph) continue;
+
+		
+		for (UEdGraphNode* Node : Graph->Nodes)
+		{
+			
+			if (UMainCharacterChoices_Node* ChoiceNode = Cast<UMainCharacterChoices_Node>(Node))
+			{
+				
+				UEdGraphPin* InputPin = ChoiceNode->FindPin(UEdGraphSchema_K2::PN_Execute);
+
+				
+				if (InputPin && InputPin->LinkedTo.Num() == 0)
+				{
+					UE_LOG(LogTemp, Error, TEXT("ERROR: Choice Node not cannot be Root node."))
+
+					FText ErrorMsg = FText::FromString(TEXT("ERROR: Choice Node cannot be Root node"));
+					FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
+					FoundIllegalRoot = true;
+				}
+			}
+		}
+	}
+
+	if (FoundIllegalRoot)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Dialogue Data Generation aborted due to illegal root!"));
+		return; 
+	}
     
 	
 	
@@ -79,6 +116,7 @@ void UDialogueWriter::GenerateDialogueData()
 			
 	for (UNPC_DialogueNode* Node : RootNPC_Nodes)
 	{
+		Node->NPC_Row.IsRoot = true;
 		HandleAutomatedData(Node);
 	}
 
@@ -193,8 +231,14 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 							Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Choices.AddUnique(IncomingID);
 						}
 						
+						const FGameplayTagContainer& IncomingTags = NPCNode->NPC_Row.RelatedGlobalEvents;
+						
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedGlobalEvents.AppendTags(IncomingTags);
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedGlobalEvents.AppendTags(IncomingTags);
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedGlobalEvents.AppendTags(IncomingTags);
+						
 						AddToDataTable(NPCNode);
-						HandleAutomatedData(Next_MainCharacterChoicesNode); //
+						HandleAutomatedData(Next_MainCharacterChoicesNode); 
 					}
 				}
 			}
@@ -250,6 +294,13 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 								{
 									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
 								}
+								
+								const FGameplayTagContainer& IncomingTags = MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedGlobalEvents;
+								Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(IncomingTags);
+								
+								
+								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner;
+								
 							}
 							
 							else if (i == 1) // Choice 2
@@ -265,6 +316,11 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 								{
 									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
 								}
+								
+								const FGameplayTagContainer& IncomingTags = MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedGlobalEvents;
+								Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(IncomingTags);
+								
+								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner;
 							}
 							
 							else if (i == 2) // Choice 3
@@ -280,6 +336,10 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 								{
 									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
 								}
+								const FGameplayTagContainer& IncomingTags = MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedGlobalEvents;
+								Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(IncomingTags);
+								
+								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner;
 							}
 							
 							AddToDataTable(MainCharacterChoicesNode);
@@ -304,7 +364,6 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 
 
 //Data Table Functions
-
 
 void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 {
@@ -335,17 +394,6 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 		{ 
 			FName RowName = NPCNode->NPC_Row.DialogueID;
 
-			/*
-			* if (TargetTable->GetRowMap().Contains(RowName))
-			{
-				return;
-			}
-			else
-			{
-				TargetTable->AddRow(NPCNode->NPC_Row.DialogueID, NPCNode->NPC_Row);
-			}
-			 */
-			
 			if (TargetTable->GetRowMap().Contains(RowName))
 			{
 				FNPC_Dialogues* ExistingRow = TargetTable->FindRow<FNPC_Dialogues>(RowName, "");
@@ -366,17 +414,7 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 	{
 		FName RowName = MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1;
 
-		/*
-		* if (DT_MainCharacter->GetRowMap().Contains(RowName))
-		{
-			
-			return;
-		}
-		else
-		{
-			DT_MainCharacter->AddRow(MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1, MainCharacterChoicesNode->AllChoice_Row);
-		}
-		 */
+		
 		
 		if (DT_MainCharacter->GetRowMap().Contains(RowName))
 		{

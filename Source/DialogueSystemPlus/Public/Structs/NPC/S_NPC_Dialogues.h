@@ -12,7 +12,7 @@ struct FNPC_Dialogues : public FTableRowBase
 {
 	GENERATED_BODY()
  
-	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") // auto  +
+	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") 
 	FName DialogueID;
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -21,10 +21,10 @@ struct FNPC_Dialogues : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USoundBase* DialogueSound;
 	
-	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") // auto
+	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") 
 	TArray<FName> RelatedNPC_Dialogues;
 
-	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") // auto
+	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") 
 	TArray<FName> RelatedNPC_Choices;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -33,7 +33,7 @@ struct FNPC_Dialogues : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTagContainer EventsToTrigger;
 
-	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") // auto  +
+	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") 
 	bool EndOfDialogue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
@@ -41,6 +41,9 @@ struct FNPC_Dialogues : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ENPCMood DesiredNPC_Mood;
+	
+	UPROPERTY(EditAnywhere, Category = "Auto Generated Dialogue Data") 
+	bool IsRoot;
 };
 
 
