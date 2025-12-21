@@ -7,13 +7,11 @@
 #include "GameplayTagContainer.h"
 #include "S_NPC_Dialogues.generated.h"
 
+
 USTRUCT(BlueprintType)
 struct FNPC_Dialogues : public FTableRowBase
 {
 	GENERATED_BODY()
- 
-	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") 
-	FName DialogueID;
  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText DialogueText;
@@ -21,20 +19,11 @@ struct FNPC_Dialogues : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USoundBase* DialogueSound;
 	
-	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") 
-	TArray<FName> RelatedNPC_Dialogues;
-
-	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") 
-	TArray<FName> RelatedNPC_Choices;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTagContainer RelatedGlobalEvents;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTagContainer EventsToTrigger;
-
-	UPROPERTY(EditAnywhere,Category="Auto Generated Dialogue Data") 
-	bool EndOfDialogue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) 
 	EConversationPartner ConversationPartner;
@@ -42,9 +31,24 @@ struct FNPC_Dialogues : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ENPCMood DesiredNPC_Mood;
 	
-	UPROPERTY(EditAnywhere, Category = "Auto Generated Dialogue Data") 
+	// Auto Generated Dialogue Data
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
+	FName DialogueID;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
+	TArray<FName> RelatedNPC_Dialogues;
+
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
+	TArray<FName> RelatedNPC_Choices;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
 	bool IsRoot;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
+	bool EndOfDialogue;
 };
+
+
 
 
  

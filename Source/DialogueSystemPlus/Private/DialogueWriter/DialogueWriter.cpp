@@ -209,6 +209,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 				{
 					if (UMainCharacterChoices_Node* Next_MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(LinkedPin->GetOwningNode()))
 					{
+						
 						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
 						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
 						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
