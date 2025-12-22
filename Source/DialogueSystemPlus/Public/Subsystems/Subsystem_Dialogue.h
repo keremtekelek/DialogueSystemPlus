@@ -135,6 +135,9 @@ public:
 	FName NPC_DialogueID;
 	
 	UPROPERTY()
+	FName NPC_NextDialogueID;
+	
+	UPROPERTY()
 	FText NPC_DialogueText;
 
 	UPROPERTY()
@@ -198,6 +201,8 @@ public:
 	// Timer variables
 	FTimerHandle DelayShowChoiceHandle;
 	FTimerHandle DelayCloseDialogueHandle;
+	FTimerHandle ShowNextDialogueHandle;
+	FTimerDelegate ShowNextDialogueDelegate;
 	
 
 	//Chosen Button
@@ -217,7 +222,7 @@ public:
 	float TimeSinceLastTick = 0.0f;
 	
 	UPROPERTY()
-	int MinimumDialogueLength = 1.5;
+	float MinimumDialogueLength = 1.f;
 	
 
 	//***FUNCTIONS***
@@ -264,12 +269,18 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Timer Functions")
 	void CloseDialogueAfterSeconds();
+	
+	UFUNCTION(BlueprintCallable, Category = "Timer Functions")
+	void ShowNextDialogueAfterSeconds(FName NextDialogueID);
+	
+	
 
 	UFUNCTION(BlueprintCallable)
 	void MakeChoice(EChosenOption ChosenButton);
 	
 	UFUNCTION(BlueprintCallable)
 	float CalculateDialogueDuration(FText DialogueText);
+	
 
 
 	// DEBUG

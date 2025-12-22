@@ -52,4 +52,6 @@ public:
 	virtual bool ShouldShowNodeProperties() const override { return true; }
 	
 	virtual void PostEditImport() override;
+	
+	virtual bool IsNodePure() const override { return true; }
 };

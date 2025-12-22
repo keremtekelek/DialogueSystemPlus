@@ -241,13 +241,32 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						AddToDataTable(NPCNode);
 						HandleAutomatedData(Next_MainCharacterChoicesNode); 
 					}
+					else if (UNPC_DialogueNode* Next_NPCNode = Cast<UNPC_DialogueNode>(LinkedPin->GetOwningNode()))
+					{
+						NPCNode->NPC_Row.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
+						
+						Next_NPCNode->NPC_Row.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
+						Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(NPCNode->NPC_Row.RelatedGlobalEvents);
+						Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
+						
+						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Dialogues)
+						{
+							Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
+						}
+						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Choices)
+						{
+							Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
+						}
+						
+						AddToDataTable(NPCNode);
+						HandleAutomatedData(Next_NPCNode);
+					}
 				}
 			}
 		}
 		else
 		{
 			NPCNode->NPC_Row.EndOfDialogue = true;
-			
 			AddToDataTable(NPCNode);
 		}
 		

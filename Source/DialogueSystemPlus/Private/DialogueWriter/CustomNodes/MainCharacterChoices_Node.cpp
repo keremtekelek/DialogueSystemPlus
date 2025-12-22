@@ -24,13 +24,14 @@ UMainCharacterChoices_Node::UMainCharacterChoices_Node()
 
 FText UMainCharacterChoices_Node::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
-	return LOCTEXT("NodeTitle", "Main Character Choices Node");
+	return LOCTEXT("NodeTitle", "Choice Node");
 }
 
 void UMainCharacterChoices_Node::AllocateDefaultPins()
 {
+	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), UEdGraphSchema_K2::PN_Execute);
 	
-	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Execute);
+	//CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Execute);
 
 	UEdGraphPin* C1 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), TEXT("Choice1"));
 	C1->PinFriendlyName = LOCTEXT("C1_Label", "Choice 1"); 

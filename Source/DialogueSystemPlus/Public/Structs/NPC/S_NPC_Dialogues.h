@@ -31,6 +31,7 @@ struct FNPC_Dialogues : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ENPCMood DesiredNPC_Mood;
 	
+	
 	// Auto Generated Dialogue Data
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
 	FName DialogueID;
@@ -42,10 +43,14 @@ struct FNPC_Dialogues : public FTableRowBase
 	TArray<FName> RelatedNPC_Choices;
 	
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
+	FName NextDialogueID;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
 	bool IsRoot;
 	
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
 	bool EndOfDialogue;
+	
 };
 
 

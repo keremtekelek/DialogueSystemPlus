@@ -132,13 +132,11 @@ void USubsystem_Dialogue::ContinueDialogue()
 			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
 			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
 
-			GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
-			
+			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
 		}
 		else
 		{
 			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,CalculateDialogueDuration(NPC_DialogueText),false);
-			
 		}
 	}
 	else
@@ -157,13 +155,36 @@ void USubsystem_Dialogue::ContinueDialogue()
 			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
 			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
 
-			GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
+			if (!NPC_NextDialogueID.IsNone())
+			{
+				if (!GetWorld()->GetTimerManager().IsTimerActive(ShowNextDialogueHandle))
+				{
+					FName NextID = NPC_NextDialogueID;
+					ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds,NextID);
+					GetWorld()->GetTimerManager().SetTimer(ShowNextDialogueHandle,ShowNextDialogueDelegate,NPC_DialogueSound->Duration + 1.6f,false);
+				}
+			}
+			else
+			{
+				GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
+			}
 
 		}
 		else
 		{
-			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,CalculateDialogueDuration(NPC_DialogueText),false);
-			
+			if (!NPC_NextDialogueID.IsNone())
+			{
+				if (!GetWorld()->GetTimerManager().IsTimerActive(ShowNextDialogueHandle))
+				{
+					FName NextID = NPC_NextDialogueID;
+					ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds,NextID);
+					GetWorld()->GetTimerManager().SetTimer(ShowNextDialogueHandle,ShowNextDialogueDelegate,CalculateDialogueDuration(NPC_DialogueText),false);
+				}
+			}
+			else
+			{
+				GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,CalculateDialogueDuration(NPC_DialogueText),false);
+			}
 		}
 	}
 }
@@ -434,6 +455,7 @@ void USubsystem_Dialogue::GetBestDialogue_RowProperties(const FNPC_Dialogues& Be
 	NPC_DialogueSound = BestNPC_Row.DialogueSound;
 	NPC_EndOfDialogue = BestNPC_Row.EndOfDialogue;
 	NPC_EventsToTrigger = BestNPC_Row.EventsToTrigger;
+	NPC_NextDialogueID = BestNPC_Row.NextDialogueID;
 }
 
 
@@ -548,6 +570,90 @@ void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 	GetWorld()->GetTimerManager().ClearTimer(DelayShowChoiceHandle);
 
 	PrintString("ShowChoiceAfterSeconds function has been called",2.f,FColor::Red);
+}
+
+void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
+{
+	FNPC_Dialogues* FoundRow = DataTable_NPC->FindRow<FNPC_Dialogues>(NextDialogueID,"");
+	
+	if (FoundRow->EndOfDialogue)
+	{
+		if (ProcessedDialogues.Contains(FoundRow->DialogueID))
+		{
+			return;
+		}
+		
+		WBP_Dialogue->ShowDialogue(FoundRow->DialogueText);
+		ProcessedDialogues.AddUnique(FoundRow->DialogueID);
+		EventManager_Subsystem->TriggerEvent(FoundRow->EventsToTrigger);
+		
+
+		if (FoundRow->DialogueSound)
+		{
+			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
+			UGameplayStatics::PlaySoundAtLocation(this, FoundRow->DialogueSound,SoundLocation);
+
+			GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
+			
+			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,FoundRow->DialogueSound->Duration + 1.6f,false);
+		}
+		else
+		{
+			GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
+			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,CalculateDialogueDuration(FoundRow->DialogueText),false);
+		}
+		
+	}
+	else
+	{
+		if (ProcessedDialogues.Contains(FoundRow->DialogueID))
+		{
+			return;
+		}
+		
+		WBP_Dialogue->ShowDialogue(FoundRow->DialogueText);
+		ProcessedDialogues.AddUnique(FoundRow->DialogueID);
+		EventManager_Subsystem->TriggerEvent(FoundRow->EventsToTrigger);
+
+		if (FoundRow->DialogueSound)
+		{
+			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
+			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
+
+			
+			if (!FoundRow->NextDialogueID.IsNone())
+			{
+				FName NextID = FoundRow->NextDialogueID;
+				ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds,NextID);
+				GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
+					
+				GetWorld()->GetTimerManager().SetTimer(ShowNextDialogueHandle,ShowNextDialogueDelegate,FoundRow->DialogueSound->Duration + 1.6f,false);
+			}
+			else
+			{
+				GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
+				
+				GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,FoundRow->DialogueSound->Duration + 1.6f,false);
+			}
+		}
+		else
+		{
+			if (!FoundRow->NextDialogueID.IsNone())
+			{
+				FName NextID = FoundRow->NextDialogueID;
+				ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds,NextID);
+					
+				GetWorld()->GetTimerManager().SetTimer(ShowNextDialogueHandle,ShowNextDialogueDelegate,CalculateDialogueDuration(FoundRow->DialogueText),false);
+				
+			}
+			else
+			{
+				GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
+				
+				GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,CalculateDialogueDuration(FoundRow->DialogueText),false);
+			}
+		}
+	}
 }
 
 void USubsystem_Dialogue::CloseDialogueAfterSeconds()
