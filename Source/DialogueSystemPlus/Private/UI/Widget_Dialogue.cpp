@@ -47,6 +47,8 @@ void UWidget_Dialogue::ShowDialogue(FText DialogueToDisplay)
 	DialogueText->SetVisibility(ESlateVisibility::Visible);
 	DialogueText->SetText(DialogueToDisplay);
 	DialogueBorder->SetVisibility(ESlateVisibility::Visible);
+	
+	PlayAnimation(ShowDialogueAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
 }
 
 void UWidget_Dialogue::CloseDialogue()
@@ -54,6 +56,8 @@ void UWidget_Dialogue::CloseDialogue()
 	DialogueText->SetVisibility(ESlateVisibility::Hidden);
 	DialogueText->SetText(FText());
 	DialogueBorder->SetVisibility(ESlateVisibility::Hidden);
+	
+	PlayAnimation(CloseDialogueAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
 }
 
 void UWidget_Dialogue::ShowChoices(FText Choice1_Text, FText Choice2_Text, FText Choice3_Text)
@@ -69,6 +73,8 @@ void UWidget_Dialogue::ShowChoices(FText Choice1_Text, FText Choice2_Text, FText
 	Choice_1_text->SetText(Choice1_Text);
 	Choice_2_text->SetText(Choice2_Text);
 	Choice_3_text->SetText(Choice3_Text);
+	
+	PlayAnimation(ShowChoicesAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
 }
 
 void UWidget_Dialogue::CloseChoices()
@@ -84,6 +90,8 @@ void UWidget_Dialogue::CloseChoices()
 	Choice_1_text->SetText(FText());
 	Choice_2_text->SetText(FText());
 	Choice_3_text->SetText(FText());
+	
+	PlayAnimation(CloseChoicesAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
 }
 
 void UWidget_Dialogue::OnChoice1Clicked()

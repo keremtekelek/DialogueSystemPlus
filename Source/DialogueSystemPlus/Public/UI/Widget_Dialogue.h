@@ -11,6 +11,7 @@
 #include "Components/TextBlock.h"
 #include "Components/Border.h"
 #include "Components/SizeBox.h"
+#include "Animation/WidgetAnimation.h"
 #include "Widget_Dialogue.generated.h"
 
 class USubsystem_Dialogue;
@@ -76,6 +77,18 @@ public:
 
 	UPROPERTY()
 	USubsystem_Dialogue* Dialogue_Subsystem;
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* ShowChoicesAnim;
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* CloseChoicesAnim;
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* ShowDialogueAnim;
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* CloseDialogueAnim;
 
 	
 	

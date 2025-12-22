@@ -473,6 +473,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		else
 		{
 			ProcessedChoices.Add(Choice1_ID);
+			WBP_Dialogue->CloseChoices();
 			ContinueDialogue();
 		}
 		
@@ -490,6 +491,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		else
 		{
 			ProcessedChoices.AddUnique(Choice2_ID);
+			WBP_Dialogue->CloseChoices();
 			ContinueDialogue();
 		}
 		AC_DialogueSystem->AddMoodValue(Choice2_EffectsMood);
@@ -507,6 +509,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		else
 		{
 			ProcessedChoices.AddUnique(Choice3_ID);
+			WBP_Dialogue->CloseChoices();
 			ContinueDialogue();
 		}
 		AC_DialogueSystem->AddMoodValue(Choice3_EffectsMood);
