@@ -32,18 +32,6 @@ void UMainCharacterChoices_Node::AllocateDefaultPins()
 	
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Execute);
 
-	/*
-	UEdGraphPin* C1 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, TEXT("Choice1"));
-	C1->PinFriendlyName = LOCTEXT("C1_Label", "Choice 1"); 
-
-
-	UEdGraphPin* C2 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, TEXT("Choice2"));
-	C2->PinFriendlyName = LOCTEXT("C2_Label", "Choice 2");
-
-
-	UEdGraphPin* C3 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, TEXT("Choice3"));
-	C3->PinFriendlyName = LOCTEXT("C3_Label", "Choice 3");*/
-
 	UEdGraphPin* C1 = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), TEXT("Choice1"));
 	C1->PinFriendlyName = LOCTEXT("C1_Label", "Choice 1"); 
 
@@ -96,24 +84,6 @@ bool UMainCharacterChoices_Node::IsCompatibleWithGraph(const UEdGraph* TargetGra
 
 bool UMainCharacterChoices_Node::IsConnectionDisallowed(const UEdGraphPin* MyPin, const UEdGraphPin* OtherPin, FString& OutReason) const
 {
-	/*
-	if (MyPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Exec)
-	{
-		UK2Node* OtherNode = Cast<UK2Node>(OtherPin->GetOwningNode());
-
-		
-		bool bIsNPCNode = OtherNode && OtherNode->IsA(UNPC_DialogueNode::StaticClass());
-		bool IsChoiceNode = OtherNode && OtherNode->IsA(UMainCharacterChoices_Node::StaticClass());
-
-	if (!bIsNPCNode &&  !IsChoiceNode)
-		{
-			OutReason = TEXT("Choice node can only connect with NPC node!");
-			return true; 
-		}
-	}
-
-	return Super::IsConnectionDisallowed(MyPin, OtherPin, OutReason);*/
-
 	if (MyPin->Direction == EGPD_Output && MyPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
 	{
 		UK2Node* OtherNode = Cast<UK2Node>(OtherPin->GetOwningNode());
@@ -127,6 +97,34 @@ bool UMainCharacterChoices_Node::IsConnectionDisallowed(const UEdGraphPin* MyPin
 	}
 
 	return Super::IsConnectionDisallowed(MyPin, OtherPin, OutReason);
+}
+
+void UMainCharacterChoices_Node::PostEditImport()
+{
+	Super::PostEditImport();
+
+	this->AllChoice_Row.Choice1.ChoiceID1 = FName(*FGuid::NewGuid().ToString());
+	this->AllChoice_Row.Choice2.ChoiceID2 = FName(*FGuid::NewGuid().ToString());
+	this->AllChoice_Row.Choice3.ChoiceID3 = FName(*FGuid::NewGuid().ToString());
+	
+	this->AllChoice_Row.Choice1.EndOfDialogue = false;
+	this->AllChoice_Row.Choice2.EndOfDialogue = false;
+	this->AllChoice_Row.Choice3.EndOfDialogue = false;
+	
+	this->AllChoice_Row.Choice1.ConversationPartner = EConversationPartner::DoesntMatter;
+	this->AllChoice_Row.Choice2.ConversationPartner = EConversationPartner::DoesntMatter;
+	this->AllChoice_Row.Choice3.ConversationPartner = EConversationPartner::DoesntMatter;
+	
+	this->AllChoice_Row.Choice1.RelatedNPC_Choices.Empty();
+	this->AllChoice_Row.Choice2.RelatedNPC_Choices.Empty();
+	this->AllChoice_Row.Choice3.RelatedNPC_Choices.Empty();
+	
+	this->AllChoice_Row.Choice1.RelatedNPC_Choices.Empty();
+	this->AllChoice_Row.Choice2.RelatedNPC_Choices.Empty();
+	this->AllChoice_Row.Choice3.RelatedNPC_Choices.Empty();
+	
+	
+	
 }
 
 #undef LOCTEXT_NAMESPACE

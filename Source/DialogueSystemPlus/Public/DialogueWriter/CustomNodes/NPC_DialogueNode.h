@@ -50,4 +50,6 @@ public:
 	}
 
 	virtual bool ShouldShowNodeProperties() const override { return true; }
+	
+	virtual void PostEditImport() override;
 };

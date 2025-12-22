@@ -39,11 +39,8 @@ public:
 	virtual void GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const override;
 	virtual FText GetMenuCategory() const override;
 	virtual bool IsCompatibleWithGraph(const UEdGraph* TargetGraph) const override;
-
-	
 	virtual bool ShouldShowNodeProperties() const override { return true; }
-	
-	
 	virtual FLinearColor GetNodeTitleColor() const override { return FLinearColor(0.1f, 0.6f, 0.2f); }
+	virtual void PostEditImport() override;
 };
 	

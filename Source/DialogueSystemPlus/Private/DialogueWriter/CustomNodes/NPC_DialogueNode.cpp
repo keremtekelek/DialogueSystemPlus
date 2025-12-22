@@ -21,10 +21,7 @@ void UNPC_DialogueNode::AllocateDefaultPins()
 {
 	const UEdGraphSchema_K2* K2Schema = GetDefault<UEdGraphSchema_K2>();
 
-	/*
-	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Execute);
-
-	CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Then);*/
+	
 
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), UEdGraphSchema_K2::PN_Execute);
 
@@ -74,26 +71,7 @@ bool UNPC_DialogueNode::IsCompatibleWithGraph(const UEdGraph* TargetGraph) const
 
 bool UNPC_DialogueNode::IsConnectionDisallowed(const UEdGraphPin* MyPin, const UEdGraphPin* OtherPin, FString& OutReason) const
 {
-	/*
-	if (MyPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Exec)
-	{
-		
-		UK2Node* OtherNode = Cast<UK2Node>(OtherPin->GetOwningNode());
-
-		
-		bool IsChoiceNode = OtherNode && OtherNode->IsA(UMainCharacterChoices_Node::StaticClass());
-		
-		bool IsNPCNode = OtherNode && OtherNode->IsA(UNPC_DialogueNode::StaticClass());
-
-		
-		if (!IsChoiceNode && !IsNPCNode)
-		{
-			OutReason = TEXT("NPC Node can only connects with Choice Node!");
-			return true; 
-		}
-
-	return Super::IsConnectionDisallowed(MyPin, OtherPin, OutReason);
-	}*/
+	
 
 	if (MyPin->Direction == EGPD_Input && MyPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
 	{
@@ -129,8 +107,19 @@ bool UNPC_DialogueNode::IsConnectionDisallowed(const UEdGraphPin* MyPin, const U
 
 	return Super::IsConnectionDisallowed(MyPin, OtherPin, OutReason);
 
+}
+
+void UNPC_DialogueNode::PostEditImport()
+{
+	Super::PostEditImport();
 	
+	FGuid NewGuid = FGuid::NewGuid();
+	this->NPC_Row.DialogueID = FName(*NewGuid.ToString());
 	
+	this->NPC_Row.RelatedNPC_Dialogues.Empty();
+	this->NPC_Row.RelatedNPC_Choices.Empty();
+	this->NPC_Row.IsRoot = false;
+	this->NPC_Row.EndOfDialogue = false;
 }
 
 #undef LOCTEXT_NAMESPACE
