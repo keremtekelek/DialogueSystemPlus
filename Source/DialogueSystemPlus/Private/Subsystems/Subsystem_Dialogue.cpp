@@ -220,13 +220,27 @@ void USubsystem_Dialogue::FinishDialogue()
 {
 	PrintString("Finish Dialogue has been called",2.f,FColor::Red);
 	
+	GetWorld()->GetTimerManager().ClearTimer(DelayShowChoiceHandle);
+	GetWorld()->GetTimerManager().ClearTimer(DelayCloseDialogueHandle);
+	
+	while (PlayerController->IsMoveInputIgnored())
+	{
+		PlayerController->SetIgnoreMoveInput(false);
+	}
+
+	while (PlayerController->IsLookInputIgnored())
+	{
+		PlayerController->SetIgnoreLookInput(false);
+	}
+	
 	FInputModeGameOnly InputMode;
 	PlayerController->SetInputMode(InputMode);
 	PlayerController->bShowMouseCursor = false;
-	PlayerController->SetIgnoreMoveInput(false);
-
+	
 	WBP_Dialogue->CloseDialogue();
 	WBP_Dialogue->CloseChoices();
+	
+	FSlateApplication::Get().SetAllUserFocusToGameViewport();
 }
 
 
@@ -517,9 +531,6 @@ void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 {
 	WBP_Dialogue->ShowChoices(Choice1_Text, Choice2_Text, Choice3_Text);
 	
-	//PlayerController->StopMovement();
-	//MainCharacter->GetCharacterMovement()->StopMovementImmediately();
-
 	PlayerController->SetIgnoreMoveInput(true);
 	PlayerController->StopMovement();
 	MainCharacter->GetCharacterMovement()->StopMovementImmediately();
@@ -531,8 +542,6 @@ void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 	PlayerController->SetInputMode(InputMode);
 	PlayerController->bShowMouseCursor = true;
 
-	
-	
 	GetWorld()->GetTimerManager().ClearTimer(DelayShowChoiceHandle);
 
 	PrintString("ShowChoiceAfterSeconds function has been called",2.f,FColor::Red);
