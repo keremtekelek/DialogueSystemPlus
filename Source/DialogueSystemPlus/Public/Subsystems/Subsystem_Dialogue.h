@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -19,6 +17,8 @@
 #include "Enums/GlobalEnums.h"
 #include "DialogueSystemPlusCharacter.h"
 #include "Tickable.h"
+#include "GameplayTagContainer.h"
+#include "GameplayTagsManager.h"
 #include "Subsystem_Dialogue.generated.h"
 
 class UAC_InteractionSystem;
@@ -43,6 +43,7 @@ UCLASS()
 class DIALOGUESYSTEMPLUS_API USubsystem_Dialogue : public UGameInstanceSubsystem, public FTickableGameObject
 {
 	GENERATED_BODY()
+	
 	
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
@@ -142,6 +143,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	FGameplayTagContainer ProcessedGlobalEvents;
+
+	
 
 	
 
@@ -310,16 +313,22 @@ public:
 
 	UFUNCTION()
 	void ShowDialogue(FText DialogueToShow,EConversationPartner OwnerOfDialogue);
-	
 
+	//EventManager functions
+	
+	UFUNCTION(Category = "Event Manager Functions")
+	void HandleGameEvent(FGameplayTag EventTag);
+
+	UFUNCTION(Category = "Event Manager Functions")
+	void EventReceived(FGameplayTag EventTag);
+
+	
+	
 
 	// DEBUG
 
 	UFUNCTION()
 	static void PrintString(const FString& Message, float time, FColor Color);
-
-	
-	
 };
 
 
