@@ -121,8 +121,10 @@ void USubsystem_Dialogue::ContinueDialogue()
 		{
 			return;
 		}
+
 		
-		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
+		ShowDialogue(NPC_DialogueText,NPC_ConversationPartner);
+		//WBP_Dialogue->ShowDialogue(NPC_DialogueText);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
 		EventManager_Subsystem->TriggerEvent(NPC_EventsToTrigger);
 		
@@ -145,8 +147,9 @@ void USubsystem_Dialogue::ContinueDialogue()
 		{
 			return;
 		}
-		
-		WBP_Dialogue->ShowDialogue(NPC_DialogueText);
+
+		ShowDialogue(NPC_DialogueText,NPC_ConversationPartner);
+		//WBP_Dialogue->ShowDialogue(NPC_DialogueText);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
 		EventManager_Subsystem->TriggerEvent(NPC_EventsToTrigger);
 
@@ -459,6 +462,7 @@ void USubsystem_Dialogue::GetBestDialogue_RowProperties(const FNPC_Dialogues& Be
 	NPC_EndOfDialogue = BestNPC_Row.EndOfDialogue;
 	NPC_EventsToTrigger = BestNPC_Row.EventsToTrigger;
 	NPC_NextDialogueID = BestNPC_Row.NextDialogueID;
+	NPC_ConversationPartner = BestNPC_Row.ConversationPartner;
 }
 
 
@@ -573,10 +577,12 @@ void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 {
 	FNPC_Dialogues* FoundRow = DataTable_NPC->FindRow<FNPC_Dialogues>(NextDialogueID,"");
-
+	bool IsNPC = true;
+	
 	if (!FoundRow)
 	{
 		FoundRow = DataTable_MainCharacterDialogue->FindRow<FNPC_Dialogues>(NextDialogueID,"");
+		IsNPC = false;
 	}
 	
 	if (FoundRow->EndOfDialogue)
@@ -585,8 +591,18 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 		{
 			return;
 		}
+
+		if (IsNPC)
+		{
+			ShowDialogue(FoundRow->DialogueText,FoundRow->ConversationPartner);
+		}
+		else
+		{
+			ShowDialogue(FoundRow->DialogueText,EConversationPartner::DoesntMatter);
+		}
+
 		
-		WBP_Dialogue->ShowDialogue(FoundRow->DialogueText);
+		//WBP_Dialogue->ShowDialogue(FoundRow->DialogueText);
 		ProcessedDialogues.AddUnique(FoundRow->DialogueID);
 		EventManager_Subsystem->TriggerEvent(FoundRow->EventsToTrigger);
 		
@@ -613,8 +629,17 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 		{
 			return;
 		}
+
+		if (IsNPC)
+		{
+			ShowDialogue(FoundRow->DialogueText,FoundRow->ConversationPartner);
+		}
+		else
+		{
+			ShowDialogue(FoundRow->DialogueText,EConversationPartner::DoesntMatter);
+		}
 		
-		WBP_Dialogue->ShowDialogue(FoundRow->DialogueText);
+		//WBP_Dialogue->ShowDialogue(FoundRow->DialogueText);
 		ProcessedDialogues.AddUnique(FoundRow->DialogueID);
 		EventManager_Subsystem->TriggerEvent(FoundRow->EventsToTrigger);
 
@@ -657,6 +682,8 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 			}
 		}
 	}
+
+	
 }
 
 void USubsystem_Dialogue::CloseDialogueAfterSeconds()
@@ -665,6 +692,42 @@ void USubsystem_Dialogue::CloseDialogueAfterSeconds()
 	FinishDialogue();
 
 	GetWorld()->GetTimerManager().ClearTimer(DelayCloseDialogueHandle);
+}
+
+
+
+void USubsystem_Dialogue::ShowDialogue(FText DialogueToShow,EConversationPartner OwnerOfDialogue)
+{
+	FString Owner;
+	switch (OwnerOfDialogue)
+	{
+	case EConversationPartner::AppleSeller:
+		Owner = AppleSellerRealName;
+		break;
+	case EConversationPartner::Baker:
+		Owner = BakerRealName;
+		break;
+	case EConversationPartner::Butcher:
+		Owner = ButcherRealName;
+		break;
+	case EConversationPartner::LemonSeller:
+		Owner =LemonSellerRealName;
+		break;
+	case EConversationPartner::PotatoSeller:
+		Owner = PotatoSellerRealName;
+		break;
+	case EConversationPartner::DoesntMatter:
+		Owner = "John";
+		break;
+	default:
+		Owner = "John";
+		break;
+	}
+	
+	FText OwnerText = FText::FromString(Owner);
+	FText Result = FText::Format(FText::FromString("{0}: {1}"),OwnerText,DialogueToShow);
+
+	WBP_Dialogue->ShowDialogue(Result);
 }
 
 
@@ -679,6 +742,7 @@ void USubsystem_Dialogue::PrintString(const FString& Message, float Time, FColor
 
 	GEngine->AddOnScreenDebugMessage(-1,Time, Color, Message);
 }
+
 
 
 

@@ -57,7 +57,28 @@ public:
 	//***VARIABLES***
 public:
 
+	// NPC's real name
 	UPROPERTY()
+	FString AppleSellerRealName = "Daniel";
+
+	UPROPERTY()
+	FString PotatoSellerRealName = "Joshua";
+
+	UPROPERTY()
+	FString LemonSellerRealName = "Andrew";
+
+	UPROPERTY()
+	FString BakerRealName = "Charles";
+
+	UPROPERTY()
+	FString ButcherRealName = "Samuel";
+
+
+
+
+	
+	// Subsystems
+	UPROPERTY(VisibleAnywhere, Category = "Subsystems")
 	USubsystem_EventManager* EventManager_Subsystem;
 	
 	// Actor Components
@@ -151,6 +172,9 @@ public:
 
 	UPROPERTY()
 	FGameplayTagContainer NPC_EventsToTrigger;
+
+	UPROPERTY()
+	EConversationPartner NPC_ConversationPartner;
 
 	//Best Main Character Choice Row Properties
 
@@ -283,6 +307,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	float CalculateDialogueDuration(FText DialogueText);
+
+	UFUNCTION()
+	void ShowDialogue(FText DialogueToShow,EConversationPartner OwnerOfDialogue);
 	
 
 
@@ -290,6 +317,8 @@ public:
 
 	UFUNCTION()
 	static void PrintString(const FString& Message, float time, FColor Color);
+
+	
 	
 };
 
