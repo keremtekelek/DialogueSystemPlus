@@ -18,6 +18,7 @@
 class UBlueprint;
 class UNPC_DialogueNode;
 class UMainCharacterChoices_Node;
+class UMainCharacterDialogue_Node;
 
 
 
@@ -50,11 +51,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Data Tables")
 	UDataTable* DT_MainCharacter;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Data Tables")
+	UDataTable* DT_MainCharacterDialogues;
+
 	UPROPERTY()
 	TArray<UEdGraphNode*> VisitedNPC_Nodes;
 
 	UPROPERTY()
 	TArray<UEdGraphNode*> VisitedMC_Nodes;
+
+	UPROPERTY()
+	TArray<UEdGraphNode*> VisitedMC_DialogueNodes;
 	
 	UPROPERTY()
 	TArray<UNPC_DialogueNode*> RootNPC_Nodes;

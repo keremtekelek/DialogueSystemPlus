@@ -98,6 +98,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Data")
 	UDataTable* DataTable_MainCharacter;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC Data")
+	UDataTable* DataTable_MainCharacterDialogue;
+
 	UPROPERTY()
 	USubsystem_Dialogue* DialogueSubsystem;
 

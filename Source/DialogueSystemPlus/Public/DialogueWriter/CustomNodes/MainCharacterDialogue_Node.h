@@ -3,33 +3,32 @@
 
 #include "CoreMinimal.h"
 #include "K2Node.h"
+#include "GameplayTagContainer.h"
+#include "Enums/GlobalEnums.h"
 #include "Structs/NPC/S_NPC_Dialogues.h"
 #include "EdGraphSchema_K2.h"
-#include "Engine/Blueprint.h"
-#include "BlueprintActionDatabaseRegistrar.h" 
-#include "BlueprintNodeSpawner.h"
-#include "NPC_DialogueNode.generated.h"
+#include "MainCharacterDialogue_Node.generated.h"
+
 
 class UDialogueWriter;
 class UMainCharacterChoices_Node;
-class UMainCharacterDialogue_Node;
-/**
- * 
- */
-UCLASS(BlueprintType, Blueprintable)
-class DIALOGUESYSTEMPLUS_API UNPC_DialogueNode : public UK2Node
+class UNPC_DialogueNode;
+
+
+
+
+UCLASS()
+class DIALOGUESYSTEMPLUS_API UMainCharacterDialogue_Node : public UK2Node
 {
 	GENERATED_BODY()
-	
-public:
-	
-	UNPC_DialogueNode();
 
 public:
 
+	UMainCharacterDialogue_Node();
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Struct")
-	FNPC_Dialogues NPC_Row;
-	
+	FNPC_Dialogues MC_DialogueRow;
+
 public:
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
@@ -47,7 +46,7 @@ public:
 
 	virtual FLinearColor GetNodeTitleColor() const override 
 	{ 
-		return FLinearColor(0.2f, 0.2f, 0.8f); 
+		return FLinearColor(0.7f, 0.2f, 0.3f); 
 	}
 
 	virtual bool ShouldShowNodeProperties() const override { return true; }
@@ -55,4 +54,5 @@ public:
 	virtual void PostEditImport() override;
 	
 	virtual bool IsNodePure() const override { return true; }
+	
 };

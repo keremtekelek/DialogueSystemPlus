@@ -70,6 +70,7 @@ void ADialogueSystemPlusCharacter::BeginPlay()
 	{
 		DialogueSubsystem->DSM_MainCharacter = DSM_MainCharacter;
 		DialogueSubsystem->DataTable_MainCharacter = DataTable_MainCharacter;
+		DialogueSubsystem->DataTable_MainCharacterDialogue = DataTable_MainCharacterDialogue;
 
 		DialogueSubsystem->MainCharacter = this;
 	}

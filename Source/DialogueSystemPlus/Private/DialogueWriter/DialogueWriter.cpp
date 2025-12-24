@@ -1,6 +1,7 @@
 #include "DialogueWriter/DialogueWriter.h"
 #include  "DialogueWriter/CustomNodes/NPC_DialogueNode.h"
 #include "DialogueWriter/CustomNodes/MainCharacterChoices_Node.h"
+#include "DialogueWriter/CustomNodes/MainCharacterDialogue_Node.h"
 
 #if WITH_EDITOR
 #include "Engine/Blueprint.h"
@@ -22,6 +23,7 @@ void UDialogueWriter::GenerateDialogueData()
 
 	VisitedNPC_Nodes.Empty();
 	VisitedMC_Nodes.Empty();
+	VisitedMC_DialogueNodes.Empty();
 	RootNPC_Nodes.Empty(); // Can be changed
 	ActiveIDs.Empty(); 
 	
@@ -72,13 +74,26 @@ void UDialogueWriter::GenerateDialogueData()
 					FoundIllegalRoot = true;
 				}
 			}
+			else if (UMainCharacterDialogue_Node* MC_DialogueNode = Cast<UMainCharacterDialogue_Node>(Node))
+			{
+				UEdGraphPin* InputPin =  MC_DialogueNode->FindPin(UEdGraphSchema_K2::PN_Execute);
+
+				if (InputPin && InputPin->LinkedTo.Num() == 0)
+				{
+					UE_LOG(LogTemp, Error, TEXT("ERROR: Player Dialogue Node not cannot be Root node."))
+
+					FText ErrorMsg = FText::FromString(TEXT("ERROR: Player Dialogue Node not cannot be Root node."));
+					FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
+					FoundIllegalRoot = true;
+				}
+			}
 		}
 	}
 
 	if (FoundIllegalRoot)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Dialogue Data Generation aborted due to illegal root!"));
-		return; 
+		return; //can be edited
 	}
     
 	
@@ -261,6 +276,26 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						AddToDataTable(NPCNode);
 						HandleAutomatedData(Next_NPCNode);
 					}
+					else if (UMainCharacterDialogue_Node* Next_PlayerDialogueNode = Cast<UMainCharacterDialogue_Node>(LinkedPin->GetOwningNode()))
+					{
+						NPCNode->NPC_Row.NextDialogueID = Next_PlayerDialogueNode->MC_DialogueRow.DialogueID;
+						
+						Next_PlayerDialogueNode->MC_DialogueRow.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
+						Next_PlayerDialogueNode->MC_DialogueRow.RelatedGlobalEvents.AppendTags(NPCNode->NPC_Row.RelatedGlobalEvents);
+						Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
+						
+						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Dialogues)
+						{
+							Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues.AddUnique(IncomingID);
+						}
+						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Choices)
+						{
+							Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Choices.AddUnique(IncomingID);
+						}
+						
+						AddToDataTable(NPCNode);
+						HandleAutomatedData(Next_PlayerDialogueNode);
+					}
 				}
 			}
 		}
@@ -377,8 +412,74 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 				MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = true;
 			}
 		}
-
+	}
+	else if (UMainCharacterDialogue_Node* MainCharacterDialogueNode = Cast<UMainCharacterDialogue_Node>(HandledNode))
+	{
+		if (!MainCharacterDialogueNode || VisitedMC_DialogueNodes.Contains(MainCharacterDialogueNode))
+		{
+			return;
+		}
+		VisitedMC_DialogueNodes.Add(MainCharacterDialogueNode);
 		
+		ActiveIDs.Add(MainCharacterDialogueNode->MC_DialogueRow.DialogueID);
+
+		UEdGraphPin* ExecPin = MainCharacterDialogueNode->FindPin(UEdGraphSchema_K2::PN_Then);
+		if (ExecPin && ExecPin->LinkedTo.Num() > 0) 
+		{
+			MainCharacterDialogueNode->MC_DialogueRow.EndOfDialogue = false;
+			
+			for (UEdGraphPin* LinkedPin : ExecPin->LinkedTo)
+			{
+				if (LinkedPin && LinkedPin->GetOwningNode())
+				{
+					if (UNPC_DialogueNode* Next_NPCNode = Cast<UNPC_DialogueNode>(LinkedPin->GetOwningNode()))
+					{
+						MainCharacterDialogueNode->MC_DialogueRow.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
+						
+						Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterDialogueNode->MC_DialogueRow.ConversationPartner;
+						Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(MainCharacterDialogueNode->MC_DialogueRow.RelatedGlobalEvents);
+						Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(MainCharacterDialogueNode->MC_DialogueRow.DialogueID);
+						
+						for (const FName& IncomingID : MainCharacterDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues)
+						{
+							Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
+						}
+						for (const FName& IncomingID : MainCharacterDialogueNode->MC_DialogueRow.RelatedNPC_Choices)
+						{
+							Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
+						}
+						
+						AddToDataTable(MainCharacterDialogueNode);
+						HandleAutomatedData(Next_NPCNode);
+					}
+					else if (UMainCharacterDialogue_Node* Next_PlayerDialogueNode = Cast<UMainCharacterDialogue_Node>(HandledNode))
+					{
+						MainCharacterDialogueNode->MC_DialogueRow.NextDialogueID = Next_PlayerDialogueNode->MC_DialogueRow.DialogueID;
+						
+						Next_PlayerDialogueNode->MC_DialogueRow.ConversationPartner = MainCharacterDialogueNode->MC_DialogueRow.ConversationPartner;
+						Next_PlayerDialogueNode->MC_DialogueRow.RelatedGlobalEvents.AppendTags(MainCharacterDialogueNode->MC_DialogueRow.RelatedGlobalEvents);
+						Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues.AddUnique(MainCharacterDialogueNode->MC_DialogueRow.DialogueID);
+						
+						for (const FName& IncomingID : MainCharacterDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues)
+						{
+							Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues.AddUnique(IncomingID);
+						}
+						for (const FName& IncomingID : MainCharacterDialogueNode->MC_DialogueRow.RelatedNPC_Choices)
+						{
+							Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Choices.AddUnique(IncomingID);
+						}
+						
+						AddToDataTable(MainCharacterDialogueNode);
+						HandleAutomatedData(Next_PlayerDialogueNode);
+					}
+				}
+			}
+		}
+		else
+		{
+			MainCharacterDialogueNode->MC_DialogueRow.EndOfDialogue = true;
+			AddToDataTable(MainCharacterDialogueNode);
+		}
 	}
 }
 
@@ -434,8 +535,6 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 	{
 		FName RowName = MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1;
 
-		
-		
 		if (DT_MainCharacter->GetRowMap().Contains(RowName))
 		{
 			FMainCharacterChoices* ExistingRow = DT_MainCharacter->FindRow<FMainCharacterChoices>(RowName, "");
@@ -450,11 +549,28 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 		}
 		
 	}
+	else if (UMainCharacterDialogue_Node* MainCharacterDialoguesNode = Cast<UMainCharacterDialogue_Node>(NodeToAddDataTable))
+	{
+		FName RowName = MainCharacterDialoguesNode->MC_DialogueRow.DialogueID;
+
+		if (DT_MainCharacterDialogues->GetRowMap().Contains(RowName))
+		{
+			FNPC_Dialogues* ExistingRow = DT_MainCharacterDialogues->FindRow<FNPC_Dialogues>(RowName, "");
+			if (ExistingRow)
+			{
+				*ExistingRow = MainCharacterDialoguesNode->MC_DialogueRow;
+			}
+		}
+		else
+		{
+			DT_MainCharacterDialogues->AddRow(MainCharacterDialoguesNode->MC_DialogueRow.DialogueID, MainCharacterDialoguesNode->MC_DialogueRow);
+		}
+	}
 }
 
 void UDialogueWriter::ClearDataTables()
 {
-	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter };
+	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter, DT_MainCharacterDialogues };
 
 	for (UDataTable* Table : AllTables)
 	{
@@ -467,7 +583,7 @@ void UDialogueWriter::ClearDataTables()
 
 void UDialogueWriter::MarkDataTablesAsDirty()
 {
-	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter };
+	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter, DT_MainCharacterDialogues };
 
 	for (UDataTable* Table : AllTables)
 	{
@@ -482,7 +598,7 @@ void UDialogueWriter::MarkDataTablesAsDirty()
 
 void UDialogueWriter::CleanGhostNodesFromTables()
 {
-	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter };
+	TArray<UDataTable*> AllTables = { DT_AppleSeller, DT_Baker, DT_Butcher, DT_LemonSeller, DT_PotatoSeller, DT_MainCharacter, DT_MainCharacterDialogues };
 	
 	for (UDataTable* Table : AllTables)
 	{
@@ -499,12 +615,10 @@ void UDialogueWriter::CleanGhostNodesFromTables()
 			
 			if (!ActiveIDs.Contains(RowName))
 			{
-				
 				RowsToRemove.Add(RowName);
 			}
 		}
 
-		
 		for (const FName& RowToRemove : RowsToRemove)
 		{
 			Table->RemoveRow(RowToRemove);

@@ -108,6 +108,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Main Character Data")
 	UDataTable* DataTable_MainCharacter;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Main Character Data")
+	UDataTable* DataTable_MainCharacterDialogue;
+
 
 	// Processed Variables
 	UPROPERTY(VisibleAnywhere)

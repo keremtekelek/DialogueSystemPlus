@@ -1,25 +1,23 @@
-#include "DialogueWriter/CustomNodes/NPC_DialogueNode.h"
+#include "DialogueWriter/CustomNodes/MainCharacterDialogue_Node.h"
 #include "DialogueWriter/DialogueWriter.h"
 #include "DialogueWriter/CustomNodes/MainCharacterChoices_Node.h"
-#include "DialogueWriter/CustomNodes/MainCharacterDialogue_Node.h"
+#include "DialogueWriter/CustomNodes/NPC_DialogueNode.h"
 
+#define LOCTEXT_NAMESPACE "MainCharacterDialogue_Node"
 
-#define LOCTEXT_NAMESPACE "NPC_DialogueNode"
-
-UNPC_DialogueNode::UNPC_DialogueNode()
+UMainCharacterDialogue_Node::UMainCharacterDialogue_Node()
 {
 	FGuid dialogueID_guid = FGuid::NewGuid();
-	this->NPC_Row.DialogueID = FName(*dialogueID_guid.ToString());
+	this->MC_DialogueRow.DialogueID = FName(*dialogueID_guid.ToString());
 }
 
 
-FText UNPC_DialogueNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
+FText UMainCharacterDialogue_Node::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
-	
-	return LOCTEXT("NodeTitle", "NPC Dialogue Node");
+	return LOCTEXT("NodeTitle", "Player Dialogue Node");
 }
 
-void UNPC_DialogueNode::AllocateDefaultPins()
+void UMainCharacterDialogue_Node::AllocateDefaultPins()
 {
 	const UEdGraphSchema_K2* K2Schema = GetDefault<UEdGraphSchema_K2>();
 
@@ -28,12 +26,12 @@ void UNPC_DialogueNode::AllocateDefaultPins()
 	CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), UEdGraphSchema_K2::PN_Execute);
 
 	
-	//CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Exec, UEdGraphSchema_K2::PN_Then);
+	
 	CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Struct, FDialogueFlow::StaticStruct(), UEdGraphSchema_K2::PN_Then);
 	
 }
 
-void UNPC_DialogueNode::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
+void UMainCharacterDialogue_Node::GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const
 {
 	
 	UClass* ActionKey = GetClass();
@@ -45,12 +43,12 @@ void UNPC_DialogueNode::GetMenuActions(FBlueprintActionDatabaseRegistrar& Action
 	}
 }
 
-FText UNPC_DialogueNode::GetMenuCategory() const
+FText UMainCharacterDialogue_Node::GetMenuCategory() const
 {
 	return LOCTEXT("MenuCategory", "Dialogue System");
 }
 
-bool UNPC_DialogueNode::IsCompatibleWithGraph(const UEdGraph* TargetGraph) const
+bool UMainCharacterDialogue_Node::IsCompatibleWithGraph(const UEdGraph* TargetGraph) const
 {
 	if (!TargetGraph)
 	{
@@ -72,21 +70,16 @@ bool UNPC_DialogueNode::IsCompatibleWithGraph(const UEdGraph* TargetGraph) const
 	return false;
 }
 
-bool UNPC_DialogueNode::IsConnectionDisallowed(const UEdGraphPin* MyPin, const UEdGraphPin* OtherPin, FString& OutReason) const
+bool UMainCharacterDialogue_Node::IsConnectionDisallowed(const UEdGraphPin* MyPin, const UEdGraphPin* OtherPin, FString& OutReason) const
 {
-	
-
 	if (MyPin->Direction == EGPD_Input && MyPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
 	{
 		UK2Node* OtherNode = Cast<UK2Node>(OtherPin->GetOwningNode());
 
-		
-		bool IsChoice = OtherNode && OtherNode->IsA(UMainCharacterChoices_Node::StaticClass());
 		bool IsNPC = OtherNode && OtherNode->IsA(UNPC_DialogueNode::StaticClass());
-		bool IsMCDialogueNode = OtherNode && OtherNode->IsA(UMainCharacterDialogue_Node::StaticClass());
-		
+		bool IsMC_DialogueNode = OtherNode && OtherNode->IsA(UMainCharacterDialogue_Node::StaticClass());
 
-		if (!IsChoice && !IsNPC && !IsMCDialogueNode)
+		if (!IsNPC && !IsMC_DialogueNode)
 		{
 			OutReason = TEXT("Blocked");
 			return true; 
@@ -98,12 +91,10 @@ bool UNPC_DialogueNode::IsConnectionDisallowed(const UEdGraphPin* MyPin, const U
 	{
 		UK2Node* OtherNode = Cast<UK2Node>(OtherPin->GetOwningNode());
 
-		
-		bool IsChoice = OtherNode && OtherNode->IsA(UMainCharacterChoices_Node::StaticClass());
 		bool IsNPC = OtherNode && OtherNode->IsA(UNPC_DialogueNode::StaticClass());
-		bool IsMCDialogueNode = OtherNode && OtherNode->IsA(UMainCharacterDialogue_Node::StaticClass());
+		bool IsMC_DialogueNode = OtherNode && OtherNode->IsA(UMainCharacterDialogue_Node::StaticClass());
 
-		if (!IsChoice && !IsNPC && !IsMCDialogueNode)
+		if (!IsNPC && !IsMC_DialogueNode)
 		{
 			OutReason = TEXT("Blocked");
 			return true; 
@@ -114,17 +105,17 @@ bool UNPC_DialogueNode::IsConnectionDisallowed(const UEdGraphPin* MyPin, const U
 
 }
 
-void UNPC_DialogueNode::PostEditImport()
+void UMainCharacterDialogue_Node::PostEditImport()
 {
 	Super::PostEditImport();
 	
 	FGuid NewGuid = FGuid::NewGuid();
-	this->NPC_Row.DialogueID = FName(*NewGuid.ToString());
+	this->MC_DialogueRow.DialogueID = FName(*NewGuid.ToString());
 	
-	this->NPC_Row.RelatedNPC_Dialogues.Empty();
-	this->NPC_Row.RelatedNPC_Choices.Empty();
-	this->NPC_Row.IsRoot = false;
-	this->NPC_Row.EndOfDialogue = false;
+	this->MC_DialogueRow.RelatedNPC_Dialogues.Empty();
+	this->MC_DialogueRow.RelatedNPC_Choices.Empty();
+	this->MC_DialogueRow.IsRoot = false;
+	this->MC_DialogueRow.EndOfDialogue = false;
 }
 
 #undef LOCTEXT_NAMESPACE

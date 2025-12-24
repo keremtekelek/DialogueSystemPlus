@@ -279,7 +279,10 @@ FName USubsystem_Dialogue::ScoreMC_Choices()
 			ChoiceScore_Value = 0;
 			
 			// Only one choice struct is enough to score
-
+			if (!(ChoiceRow->Choice1.ConversationPartner == InteractedCharacter))
+			{
+				continue;
+			}
 
 			//Scoring Choices
 			
@@ -473,11 +476,6 @@ void USubsystem_Dialogue::AddScoreValue(int ScoreToAdd, EScoreType ScoreType)
 	}
 }
 
-
-
-
-
-
 void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 {
 	//ChosenChoice = ChosenButton;
@@ -575,6 +573,11 @@ void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 {
 	FNPC_Dialogues* FoundRow = DataTable_NPC->FindRow<FNPC_Dialogues>(NextDialogueID,"");
+
+	if (!FoundRow)
+	{
+		FoundRow = DataTable_MainCharacterDialogue->FindRow<FNPC_Dialogues>(NextDialogueID,"");
+	}
 	
 	if (FoundRow->EndOfDialogue)
 	{
