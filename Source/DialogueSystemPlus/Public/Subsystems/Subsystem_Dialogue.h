@@ -74,6 +74,9 @@ public:
 	UPROPERTY()
 	FString ButcherRealName = "Samuel";
 
+	UPROPERTY()
+	FString MainCharacterRealName = "Victor";
+
 
 
 

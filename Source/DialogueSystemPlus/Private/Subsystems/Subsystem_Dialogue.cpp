@@ -369,13 +369,22 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 		{
 			DialogueScore_Value = 0;
 
+			if (DialogueRow->IsRoot)
+			{
+				AddScoreValue(5, EScoreType::Dialogue);
+			}
+
 			FGameplayTagContainer RequiredTags = DialogueRow->RelatedGlobalEvents;
         
 			for (auto It = RequiredTags.CreateConstIterator(); It; ++It)
 			{
 				if (ProcessedGlobalEvents.HasTag(*It))
 				{
-					AddScoreValue(1, EScoreType::Dialogue);
+					AddScoreValue(10, EScoreType::Dialogue);
+				}
+				else
+				{
+					AddScoreValue(-10, EScoreType::Dialogue);
 				}
 			}
 			
@@ -383,7 +392,11 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 			{
 				if (ProcessedChoices.Contains(NPC_Choice))
 				{
-					AddScoreValue(1,EScoreType::Dialogue);
+					AddScoreValue(10,EScoreType::Dialogue);
+				}
+				else
+				{
+					AddScoreValue(-10,EScoreType::Dialogue);
 				}
 			}
 
@@ -391,13 +404,17 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 			{
 				if (ProcessedDialogues.Contains(NPC_Dialogues))
 				{
-					AddScoreValue(1,EScoreType::Dialogue);
+					AddScoreValue(10,EScoreType::Dialogue);
+				}
+				else
+				{
+					AddScoreValue(-10,EScoreType::Dialogue);
 				}
 			}
 
 			if (Mood_NPC == DialogueRow->DesiredNPC_Mood)
 			{
-				AddScoreValue(1,EScoreType::Dialogue);
+				AddScoreValue(5,EScoreType::Dialogue);
 			}
 
 			DSM_NPC.Add(DialogueRow->DialogueID, DialogueScore_Value);
@@ -704,7 +721,7 @@ void USubsystem_Dialogue::ShowDialogue(FText DialogueToShow,EConversationPartner
 
 	if (OwnerOfDialogue == EConversationPartner::AppleSeller)
 	{
-		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedAppleSellerRealName"))))
+		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.ExposedRealNames.LearnedAppleSellerRealName"))))
 		{
 			FString Owner = AppleSellerRealName;
 
@@ -716,12 +733,16 @@ void USubsystem_Dialogue::ShowDialogue(FText DialogueToShow,EConversationPartner
 		
 		else
 		{
-			WBP_Dialogue->ShowDialogue(DialogueToShow);
+			FString Temporary = "Apple Seller";
+
+			FText TemporaryText = FText::FromString(Temporary);
+			FText Result = FText::Format(FText::FromString("{0}: {1}"), TemporaryText, DialogueToShow);
+			WBP_Dialogue->ShowDialogue(Result);
 		}
 	}
 	else if (OwnerOfDialogue == EConversationPartner::Baker)
 	{
-		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedBakerRealName"))))
+		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.ExposedRealNames.LearnedBakerRealName"))))
 		{
 			FString Owner = BakerRealName;
 
@@ -733,12 +754,16 @@ void USubsystem_Dialogue::ShowDialogue(FText DialogueToShow,EConversationPartner
 		
 		else
 		{
-			WBP_Dialogue->ShowDialogue(DialogueToShow);
+			FString Temporary = "Baker";
+
+			FText TemporaryText = FText::FromString(Temporary);
+			FText Result = FText::Format(FText::FromString("{0}: {1}"), TemporaryText, DialogueToShow);
+			WBP_Dialogue->ShowDialogue(Result);
 		}
 	}
 	else if (OwnerOfDialogue == EConversationPartner::Butcher)
 	{
-		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedButcherRealName"))))
+		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.ExposedRealNames.LearnedButcherRealName"))))
 		{
 			FString Owner = ButcherRealName;
 
@@ -750,12 +775,16 @@ void USubsystem_Dialogue::ShowDialogue(FText DialogueToShow,EConversationPartner
 		
 		else
 		{
-			WBP_Dialogue->ShowDialogue(DialogueToShow);
+			FString Temporary = "Butcher";
+
+			FText TemporaryText = FText::FromString(Temporary);
+			FText Result = FText::Format(FText::FromString("{0}: {1}"), TemporaryText, DialogueToShow);
+			WBP_Dialogue->ShowDialogue(Result);
 		}
 	}
 	else if (OwnerOfDialogue == EConversationPartner::LemonSeller)
 	{
-		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedLemonSellerRealName"))))
+		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.ExposedRealNames.LearnedLemonSellerRealName"))))
 		{
 			FString Owner = LemonSellerRealName;
 
@@ -767,12 +796,16 @@ void USubsystem_Dialogue::ShowDialogue(FText DialogueToShow,EConversationPartner
 		
 		else
 		{
-			WBP_Dialogue->ShowDialogue(DialogueToShow);
+			FString Temporary = "Lemon Seller";
+
+			FText TemporaryText = FText::FromString(Temporary);
+			FText Result = FText::Format(FText::FromString("{0}: {1}"), TemporaryText, DialogueToShow);
+			WBP_Dialogue->ShowDialogue(Result);
 		}
 	}
 	else if (OwnerOfDialogue == EConversationPartner::PotatoSeller)
 	{
-		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedPotatoSellerRealName"))))
+		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.ExposedRealNames.LearnedPotatoSellerRealName"))))
 		{
 			FString Owner = PotatoSellerRealName;
 
@@ -784,27 +817,33 @@ void USubsystem_Dialogue::ShowDialogue(FText DialogueToShow,EConversationPartner
 		
 		else
 		{
-			WBP_Dialogue->ShowDialogue(DialogueToShow);
+			FString Temporary = "Potato Seller";
+
+			FText TemporaryText = FText::FromString(Temporary);
+			FText Result = FText::Format(FText::FromString("{0}: {1}"), TemporaryText, DialogueToShow);
+			WBP_Dialogue->ShowDialogue(Result);
 		}
 	}
 	else if (OwnerOfDialogue == EConversationPartner::DoesntMatter)
 	{
-		FString Owner = "John";
-		FText OwnerText = FText::FromString(Owner);
-		FText Result = FText::Format(FText::FromString("{0}: {1}"),OwnerText,DialogueToShow);
+		if (ProcessedGlobalEvents.HasTagExact(FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.ExposedRealNames.MainCharacterNameExposed"))))
+		{
+			FString Owner = MainCharacterRealName;
 
-		WBP_Dialogue->ShowDialogue(Result);
+			FText OwnerText = FText::FromString(Owner);
+			FText Result = FText::Format(FText::FromString("{0}: {1}"),OwnerText,DialogueToShow);
+
+			WBP_Dialogue->ShowDialogue(Result);
+		}
+		else
+		{
+			WBP_Dialogue->ShowDialogue(DialogueToShow);
+		}
 	}
 	else
 	{
-		FString Owner = "John";
-		FText OwnerText = FText::FromString(Owner);
-		FText Result = FText::Format(FText::FromString("{0}: {1}"),OwnerText,DialogueToShow);
-
-		WBP_Dialogue->ShowDialogue(Result);
+		WBP_Dialogue->ShowDialogue(DialogueToShow);
 	}
-	
-	
 }
 
 
@@ -815,37 +854,8 @@ void USubsystem_Dialogue::EventReceived(FGameplayTag EventTag)
 
 void USubsystem_Dialogue::HandleGameEvent(FGameplayTag EventTag)
 {
-	/*
-	FGameplayTag LearnedAppleSellerRealName = FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedAppleSellerRealName"));
-	FGameplayTag LearnedLemonSellerRealName = FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedLemonSellerRealName"));
-	FGameplayTag LearnedBakerRealName = FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedBakerRealName"));
-	FGameplayTag LearnedButcherRealName = FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedButcherRealName"));
-	FGameplayTag LearnedPotatoSellerRealName = FGameplayTag::RequestGameplayTag(FName("Event.GlobalEvents.MainCharacter.LearnedPotatoSellerRealName"));
-
-	// Searching for exact event name
-	switch (EventTag)
-	{
-	case LearnedAppleSellerRealName:
-		ExposedRealNPCNames.AddUnique(AppleSellerRealName);
-		break;
-	case LearnedLemonSellerRealName:
-		ExposedRealNPCNames.AddUnique(LemonSellerRealName);
-		break;
-	case  LearnedBakerRealName:
-		ExposedRealNPCNames.AddUnique(BakerRealName);
-		break;
-	case LearnedButcherRealName:
-		ExposedRealNPCNames.AddUnique(ButcherRealName);
-		break;
-	case LearnedPotatoSellerRealName:
-		ExposedRealNPCNames.AddUnique(PotatoSellerRealName);
-		break;
-	}*/
+	
 }
-
-
-
-
 
 
 //DEBUG Functions
