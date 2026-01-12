@@ -118,13 +118,47 @@ void UNPC_DialogueNode::PostEditImport()
 {
 	Super::PostEditImport();
 	
-	FGuid NewGuid = FGuid::NewGuid();
+	/*
+	* FGuid NewGuid = FGuid::NewGuid();
 	this->NPC_Row.DialogueID = FName(*NewGuid.ToString());
 	
 	this->NPC_Row.RelatedNPC_Dialogues.Empty();
 	this->NPC_Row.RelatedNPC_Choices.Empty();
 	this->NPC_Row.IsRoot = false;
 	this->NPC_Row.EndOfDialogue = false;
+	 */
+	
+	UEdGraph* ParentGraph = GetGraph();
+	if (ParentGraph)
+	{
+		bool IsCopy = false;
+
+		for (UEdGraphNode* Node : ParentGraph->Nodes)
+		{
+			if (Node == this) continue;
+			
+			if (UNPC_DialogueNode* OtherNPCNode = Cast<UNPC_DialogueNode>(Node))
+			{
+				if (OtherNPCNode->NPC_Row.DialogueID == this->NPC_Row.DialogueID)
+				{
+					IsCopy = true;
+					break;
+				}
+			}
+		}
+
+		
+		if (this->NPC_Row.DialogueID.IsNone() || IsCopy)
+		{
+			this->NPC_Row.DialogueID = FName(*FGuid::NewGuid().ToString());
+			
+			this->NPC_Row.RelatedNPC_Dialogues.Empty();
+			this->NPC_Row.RelatedNPC_Choices.Empty();
+			this->NPC_Row.IsRoot = false; 
+			this->NPC_Row.EndOfDialogue = false;
+			this->NPC_Row.RelatedGlobalEvents.Reset();
+		}
+	}
 }
 
 #undef LOCTEXT_NAMESPACE
