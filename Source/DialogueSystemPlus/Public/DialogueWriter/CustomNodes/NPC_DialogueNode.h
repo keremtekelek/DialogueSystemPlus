@@ -8,6 +8,10 @@
 #include "Engine/Blueprint.h"
 #include "BlueprintActionDatabaseRegistrar.h" 
 #include "BlueprintNodeSpawner.h"
+#include "ToolMenu.h"
+#include "ToolMenuSection.h"
+#include "ScopedTransaction.h"
+#include "Kismet2/KismetEditorUtilities.h"
 #include "NPC_DialogueNode.generated.h"
 
 class UDialogueWriter;
@@ -29,6 +33,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue Struct")
 	FNPC_Dialogues NPC_Row;
+	
+
+	UPROPERTY()
+	TArray<FName> ManualAdded_RelatedNPC_Dialogues;
 	
 public:
 
@@ -55,4 +63,6 @@ public:
 	virtual void PostEditImport() override;
 	
 	virtual bool IsNodePure() const override { return true; }
+	
+	virtual void GetNodeContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const override;
 };

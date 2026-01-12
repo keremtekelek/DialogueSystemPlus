@@ -513,22 +513,25 @@ void UDialogueWriter::AddToDataTable(UEdGraphNode* NodeToAddDataTable)
 
 		if (TargetTable)
 		{ 
-			FName RowName = NPCNode->NPC_Row.DialogueID;
+			FNPC_Dialogues FinalData = NPCNode->NPC_Row;
+
+			for (const FName& ManualID : NPCNode->ManualAdded_RelatedNPC_Dialogues)
+			{
+				FinalData.RelatedNPC_Dialogues.AddUnique(ManualID);
+			}
+
+			
+			FName RowName = FinalData.DialogueID;
 
 			if (TargetTable->GetRowMap().Contains(RowName))
 			{
 				FNPC_Dialogues* ExistingRow = TargetTable->FindRow<FNPC_Dialogues>(RowName, "");
-                
-				if (ExistingRow)
-				{
-					*ExistingRow = NPCNode->NPC_Row;
-				}
+				*ExistingRow = FinalData;
 			}
 			else
 			{
-				TargetTable->AddRow(NPCNode->NPC_Row.DialogueID, NPCNode->NPC_Row);
+				TargetTable->AddRow(RowName, FinalData);
 			}
-			
 		}
 	}
 	else if (UMainCharacterChoices_Node* MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(NodeToAddDataTable))

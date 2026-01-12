@@ -20,6 +20,17 @@ class UNPC_DialogueNode;
 class UMainCharacterChoices_Node;
 class UMainCharacterDialogue_Node;
 
+struct FDialogueEditorClipboard
+{
+	static FName CopiedID;
+	static FString CopiedNodeType;
+
+	static void Reset()
+	{
+		CopiedID = NAME_None;
+		CopiedNodeType.Empty();
+	}
+};
 
 
 /**
@@ -69,18 +80,11 @@ public:
 	UPROPERTY()
 	TSet<FName> ActiveIDs;
 	
-
-	
-
-
 public:
 	
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "Dialogue Tools")
 	void GenerateDialogueData();
 
-	
-
-	
 	UFUNCTION(BlueprintCallable, Category = "Data Table Functions")
 	void ClearDataTables();
 
@@ -96,8 +100,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Data Table Functions")
 	void CleanGhostNodesFromTables();
 	
-	
-
 protected:
 	
 	virtual void PostInitProperties() override;

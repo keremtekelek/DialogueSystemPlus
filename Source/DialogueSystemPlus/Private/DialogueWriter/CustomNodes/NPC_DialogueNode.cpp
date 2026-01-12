@@ -3,6 +3,8 @@
 #include "DialogueWriter/CustomNodes/MainCharacterChoices_Node.h"
 #include "DialogueWriter/CustomNodes/MainCharacterDialogue_Node.h"
 
+FName FDialogueEditorClipboard::CopiedID = NAME_None;
+FString FDialogueEditorClipboard::CopiedNodeType = TEXT("");
 
 #define LOCTEXT_NAMESPACE "NPC_DialogueNode"
 
@@ -118,16 +120,6 @@ void UNPC_DialogueNode::PostEditImport()
 {
 	Super::PostEditImport();
 	
-	/*
-	* FGuid NewGuid = FGuid::NewGuid();
-	this->NPC_Row.DialogueID = FName(*NewGuid.ToString());
-	
-	this->NPC_Row.RelatedNPC_Dialogues.Empty();
-	this->NPC_Row.RelatedNPC_Choices.Empty();
-	this->NPC_Row.IsRoot = false;
-	this->NPC_Row.EndOfDialogue = false;
-	 */
-	
 	UEdGraph* ParentGraph = GetGraph();
 	if (ParentGraph)
 	{
@@ -159,6 +151,193 @@ void UNPC_DialogueNode::PostEditImport()
 			this->NPC_Row.RelatedGlobalEvents.Reset();
 		}
 	}
+}
+
+void UNPC_DialogueNode::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const
+{
+    Super::GetNodeContextMenuActions(Menu, Context);
+
+    if (!Context->Graph)
+    {
+        return;
+    }
+	
+	UNPC_DialogueNode* MutableThis = const_cast<UNPC_DialogueNode*>(this);
+
+    FToolMenuSection& Section = Menu->AddSection("DialogueActions", LOCTEXT("DialogueActions", "Dialogue System Actions"));
+    
+	Section.AddMenuEntry(
+		"CopyNodeID",
+		LOCTEXT("CopyNodeID", "Copy Node ID"),
+		LOCTEXT("CopyNodeIDTooltip", "Copies ID to clipboard."),
+		FSlateIcon(),
+		FUIAction(FExecuteAction::CreateLambda([MutableThis]() 
+		{
+			FDialogueEditorClipboard::CopiedID = MutableThis->NPC_Row.DialogueID;
+			FDialogueEditorClipboard::CopiedNodeType = TEXT("NPC");
+            
+			UE_LOG(LogTemp, Log, TEXT("Copied ID: %s"), *FDialogueEditorClipboard::CopiedID.ToString());
+		}))
+	);
+
+    
+	Section.AddMenuEntry(
+		"PasteNodeID",
+		LOCTEXT("PasteNodeID", "Paste Node ID"),
+		LOCTEXT("PasteNodeIDTooltip", "Adds ID to Related NPC Dialogue's list."),
+		FSlateIcon(),
+		FUIAction(
+			FExecuteAction::CreateLambda([MutableThis]()
+			{
+				FScopedTransaction Transaction(LOCTEXT("PasteNodeIDTx", "Paste Node ID"));
+                
+				MutableThis->Modify(); 
+                
+				if (FDialogueEditorClipboard::CopiedNodeType == TEXT("NPC"))
+				{
+					if (FDialogueEditorClipboard::CopiedID == MutableThis->NPC_Row.DialogueID)
+					{
+						FText ErrorMsg = FText::FromString(TEXT("ERROR: You can't paste a node's ID to itself"));
+						FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
+					}
+					else
+					{
+						MutableThis->ManualAdded_RelatedNPC_Dialogues.AddUnique(FDialogueEditorClipboard::CopiedID);
+						MutableThis->NPC_Row.RelatedNPC_Dialogues.AddUnique(FDialogueEditorClipboard::CopiedID);
+					}
+				}
+			}),
+			FCanExecuteAction::CreateLambda([]()
+			{
+				return !FDialogueEditorClipboard::CopiedID.IsNone();
+			})
+		)
+	);
+
+    
+	Section.AddMenuEntry(
+		"ClearManualIDs",
+		LOCTEXT("ClearManualIDs", "Clear Pasted IDs"),
+		LOCTEXT("ClearManualIDsTooltip", "Removes only manually pasted IDs."),
+		FSlateIcon(),
+		FUIAction(
+			FExecuteAction::CreateLambda([MutableThis]()
+			{
+				FScopedTransaction Transaction(LOCTEXT("ClearManualIDsTx", "Clear Manual IDs"));
+				MutableThis->Modify();
+
+				for (const FName& ID_to_Delete : MutableThis->ManualAdded_RelatedNPC_Dialogues)
+				{
+					if (MutableThis->NPC_Row.RelatedNPC_Dialogues.Contains(ID_to_Delete))
+					{
+						MutableThis->NPC_Row.RelatedNPC_Dialogues.Remove(ID_to_Delete);
+					}
+				}
+				
+				MutableThis->ManualAdded_RelatedNPC_Dialogues.Empty();
+				UE_LOG(LogTemp, Warning, TEXT("Manual Added IDs Cleared."));
+			}),
+			FCanExecuteAction::CreateLambda([MutableThis]()
+			{
+				return MutableThis->ManualAdded_RelatedNPC_Dialogues.Num() > 0;
+			})
+		)
+	);
+	
+	
+	Section.AddSubMenu(
+        "PastedDialogues",
+        LOCTEXT("PastedDialogues", "Pasted Dialogues Preview"), 
+        LOCTEXT("PastedDialoguesTooltip", "Shows manually added(pasted) dialogues ID's"), 
+        FNewToolMenuDelegate::CreateLambda([MutableThis](UToolMenu* SubMenu)
+        {
+            
+            if (MutableThis->ManualAdded_RelatedNPC_Dialogues.Num() == 0)
+            {
+                SubMenu->AddMenuEntry(
+                    "EmptyList",
+                    FToolMenuEntry::InitMenuEntry(
+                        "EmptyList",
+                        LOCTEXT("EmptyList", "No manual dialogue ID found"),
+                        LOCTEXT("EmptyListTooltip", "Paste a Node ID first."),
+                        FSlateIcon(),
+                        FUIAction() 
+                    )
+                );
+                return;
+            }
+
+            UEdGraph* CurrentGraph = MutableThis->GetGraph();
+            if (!CurrentGraph)
+            {
+            	return;
+            }
+
+            for (const FName& LinkedID : MutableThis->ManualAdded_RelatedNPC_Dialogues)
+            {
+                FString DisplayText = "Node Not Found in Graph!";
+                FString FullDialogue = "";
+
+                for (UEdGraphNode* Node : CurrentGraph->Nodes)
+                {
+                    if (UNPC_DialogueNode* TargetNode = Cast<UNPC_DialogueNode>(Node))
+                    {
+                        if (TargetNode->NPC_Row.DialogueID == LinkedID)
+                        {
+                            FullDialogue = TargetNode->NPC_Row.DialogueText.ToString();
+                            
+                            if (FullDialogue.Len() > 30)
+                            {
+                                DisplayText = FullDialogue.Left(30) + "...";
+                            }
+                            else
+                            {
+                                DisplayText = FullDialogue;
+                            }
+                            break; 
+                        }
+                    }
+                }
+
+            	FString FullID = LinkedID.ToString();
+				FString FormattedID = FullID;
+
+				if (FullID.Len() > 10)
+				{
+					FormattedID = FString::Printf(TEXT("%s...%s"), *FullID.Left(4), *FullID.Right(4));
+				}
+                
+                FText MenuLabel = FText::Format(LOCTEXT("Format", "[{0}]: {1}"), FText::FromString(FormattedID), FText::FromString(DisplayText));
+                FText TooltipText = FText::FromString(FullDialogue); 
+
+                SubMenu->AddMenuEntry(
+                    FName(*LinkedID.ToString()),
+                    FToolMenuEntry::InitMenuEntry(
+                        FName(*LinkedID.ToString()),
+                        MenuLabel,
+                        TooltipText,
+                        FSlateIcon(),
+                        FUIAction(
+                        FExecuteAction::CreateLambda([CurrentGraph, LinkedID]
+                        {
+                        	for (UEdGraphNode* Node : CurrentGraph->Nodes)
+                        	{
+                        		if (UNPC_DialogueNode* TargetNode = Cast<UNPC_DialogueNode>(Node))
+                        		{
+                        			if (TargetNode->NPC_Row.DialogueID == LinkedID)
+                        			{
+                        				FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(TargetNode);
+										break;
+									}
+                        		}
+                        	}
+                        })
+                        ) 
+                    )
+                );
+            }
+        })
+    );
 }
 
 #undef LOCTEXT_NAMESPACE
