@@ -109,16 +109,6 @@ void UMainCharacterDialogue_Node::PostEditImport()
 {
 	Super::PostEditImport();
 	
-	/*
-	* FGuid NewGuid = FGuid::NewGuid();
-	this->MC_DialogueRow.DialogueID = FName(*NewGuid.ToString());
-	
-	this->MC_DialogueRow.RelatedNPC_Dialogues.Empty();
-	this->MC_DialogueRow.RelatedNPC_Choices.Empty();
-	this->MC_DialogueRow.IsRoot = false;
-	this->MC_DialogueRow.EndOfDialogue = false;
-	 */
-	
 	UEdGraph* ParentGraph = GetGraph();
 	if (ParentGraph)
 	{
