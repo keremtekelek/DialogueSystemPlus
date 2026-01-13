@@ -257,6 +257,11 @@ public:
 	UPROPERTY()
 	float MinimumDialogueLength = 1.f;
 	
+	
+	//
+	UPROPERTY()
+	EConversationPartner PreviousConversationPartner;
+	
 
 	//***FUNCTIONS***
 public:

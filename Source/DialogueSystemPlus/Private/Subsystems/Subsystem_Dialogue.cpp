@@ -49,7 +49,7 @@ void USubsystem_Dialogue::Tick(float DeltaTime)
 		{
 			ProcessedGlobalEvents = EventManager_Subsystem->TriggeredEvents;
 
-			UE_LOG(LogTemp, Warning, TEXT("Processed Tags: %s"), *ProcessedGlobalEvents.ToStringSimple());
+			//UE_LOG(LogTemp, Warning, TEXT("Processed Tags: %s"), *ProcessedGlobalEvents.ToStringSimple());
 		}
 		 
 		TimeSinceLastTick -= TickInterval; 
@@ -122,12 +122,12 @@ void USubsystem_Dialogue::ContinueDialogue()
 	{
 		if (ProcessedDialogues.Contains(NPC_DialogueID))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("ProcessedDialogues has your best NPC_DialogueID, Dialogue's EndOfDialogue = true"))
 			return;
 		}
 
 		
 		ShowDialogue(NPC_DialogueText,NPC_ConversationPartner);
-		//WBP_Dialogue->ShowDialogue(NPC_DialogueText);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
 		EventManager_Subsystem->TriggerEvent(NPC_EventsToTrigger);
 		
@@ -148,11 +148,11 @@ void USubsystem_Dialogue::ContinueDialogue()
 	{
 		if (ProcessedDialogues.Contains(NPC_DialogueID))
 		{
+			UE_LOG(LogTemp, Warning, TEXT("ProcessedDialogues has your best NPC_DialogueID, Dialogue's EndOfDialogue = false"))
 			return;
 		}
 
 		ShowDialogue(NPC_DialogueText,NPC_ConversationPartner);
-		//WBP_Dialogue->ShowDialogue(NPC_DialogueText);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
 		EventManager_Subsystem->TriggerEvent(NPC_EventsToTrigger);
 
@@ -174,7 +174,6 @@ void USubsystem_Dialogue::ContinueDialogue()
 			{
 				GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,NPC_DialogueSound->Duration + 1.6f,false);
 			}
-
 		}
 		else
 		{
@@ -202,7 +201,7 @@ bool USubsystem_Dialogue::FilterDialogues()
 
 	if (BestNPC_DialogueRowName.IsNone())
 	{
-		//FinishDialogue();
+		UE_LOG(LogTemp, Warning, TEXT("Best NPC Dialogue Row Name == None"))
 		return false; 
 	}
 	else
@@ -214,6 +213,7 @@ bool USubsystem_Dialogue::FilterDialogues()
 		}
 		else
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Best NPC Dialogue Row is null"))
 			return false;
 		}
 	}
@@ -224,7 +224,7 @@ bool USubsystem_Dialogue::FilterDialogues()
 
 	if (BestChoice_RowName.IsNone())
 	{
-		//FinishDialogue();
+		UE_LOG(LogTemp, Warning, TEXT("Best Choice Row Name == None"))
 		return false; 
 	}
 	else
@@ -236,6 +236,7 @@ bool USubsystem_Dialogue::FilterDialogues()
 		}
 		else
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Best Choice Row is Null"))
 			return false;
 		}
 	}
@@ -286,6 +287,11 @@ FName USubsystem_Dialogue::ScoreMC_Choices()
 			
 			// Only one choice struct is enough to score
 			if (!(ChoiceRow->Choice1.ConversationPartner == InteractedCharacter))
+			{
+				continue;
+			}
+			
+			if (ProcessedChoices.Contains(ChoiceRow->Choice1.ChoiceID1))
 			{
 				continue;
 			}
@@ -368,7 +374,12 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 		for (const auto DialogueRow: DialogueRows)
 		{
 			DialogueScore_Value = 0;
-
+			
+			if (ProcessedDialogues.Contains(DialogueRow->DialogueID))
+			{
+				continue;
+			}
+			
 			if (DialogueRow->IsRoot)
 			{
 				AddScoreValue(5, EScoreType::Dialogue);
@@ -436,7 +447,7 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 
 		if (BestDialogueID != NAME_None)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Best Choice: %s, Score: %d"), *BestDialogueID.ToString(), HighestScore);
+			UE_LOG(LogTemp, Log, TEXT("Best Dialogue: %s, Score: %d"), *BestDialogueID.ToString(), HighestScore);
 		}
 
 		DSM_NPC.Empty();
