@@ -40,10 +40,10 @@ struct FNPC_Dialogues : public FTableRowBase
 	TArray<FName> RelatedNPC_Dialogues;
 
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
-	TArray<FName> RelatedNPC_Choices;
+	FName NextDialogueID;
 	
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
-	FName NextDialogueID;
+	FName NextChoiceID;
 	
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 
 	bool IsRoot;

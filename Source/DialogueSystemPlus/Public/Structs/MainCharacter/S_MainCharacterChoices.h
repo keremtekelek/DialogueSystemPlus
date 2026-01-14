@@ -19,27 +19,19 @@ struct FChoice1
 	int EffectsMood = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTagContainer RelatedGlobalEvents;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTagContainer EventsToTrigger;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
+	EConversationPartner ConversationPartner;
 
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
+	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") 
 	bool EndOfDialogue = false;
 
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	EConversationPartner ConversationPartner;
-	
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto +
+	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data")  
 	FName ChoiceID1;
 	
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	TArray<FName> RelatedNPC_Dialogues;
-
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	TArray<FName> RelatedNPC_Choices;
-
-	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
+	FName NextDialogueID;
 };
 
 USTRUCT(BlueprintType)
@@ -54,25 +46,20 @@ struct FChoice2
 	int EffectsMood = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTagContainer RelatedGlobalEvents;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTagContainer EventsToTrigger;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
+	EConversationPartner ConversationPartner;
 
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
+	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") 
 	bool EndOfDialogue = false;
 
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	EConversationPartner ConversationPartner;
-	
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto +
+	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") 
 	FName ChoiceID2;
 	
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	TArray<FName> RelatedNPC_Dialogues;
-
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	TArray<FName> RelatedNPC_Choices;
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
+	FName NextDialogueID;
+	
 };
 
 USTRUCT(BlueprintType)
@@ -87,25 +74,21 @@ struct FChoice3
 	int EffectsMood = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FGameplayTagContainer RelatedGlobalEvents;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTagContainer EventsToTrigger;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
+	EConversationPartner ConversationPartner;
 
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
+	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") 
 	bool EndOfDialogue = false;
 
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	EConversationPartner ConversationPartner;
-	
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto +
+	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") 
 	FName ChoiceID3;
 	
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	TArray<FName> RelatedNPC_Dialogues;
-
-	UPROPERTY(BlueprintReadOnly,Category="Auto Generated Choice Data") // auto
-	TArray<FName> RelatedNPC_Choices;
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
+	FName NextDialogueID;
+	
+	
 };
  
 USTRUCT(BlueprintType)

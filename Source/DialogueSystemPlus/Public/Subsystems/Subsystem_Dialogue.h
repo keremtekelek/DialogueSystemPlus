@@ -168,6 +168,9 @@ public:
 	FName NPC_NextDialogueID;
 	
 	UPROPERTY()
+	FName NPC_NextChoiceID;
+	
+	UPROPERTY()
 	FText NPC_DialogueText;
 
 	UPROPERTY()
@@ -230,6 +233,16 @@ public:
 
 	UPROPERTY()
 	int Choice3_EffectsMood;
+	
+	UPROPERTY()
+	FName Choice1_NextDialogueID;
+	
+	UPROPERTY()
+	FName Choice2_NextDialogueID;
+	
+	UPROPERTY()
+	FName Choice3_NextDialogueID;
+	
 
 	// Timer variables
 	FTimerHandle DelayShowChoiceHandle;
@@ -255,7 +268,7 @@ public:
 	float TimeSinceLastTick = 0.0f;
 	
 	UPROPERTY()
-	float MinimumDialogueLength = 1.f;
+	float MinimumDialogueLength = 0.7f;
 	
 	
 	//
@@ -280,24 +293,28 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void FinishDialogue();
+	
+	UFUNCTION(BlueprintCallable)
+	void ControlDialogue();
 
-	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
-	FName ScoreMC_Choices();
-
+	
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
 	FName ScoreNPC_Dialogues();
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
-	void AddScoreValue(int ScoreToAdd, EScoreType ScoreType);
+	void AddScoreValue(int ScoreToAdd);
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
 	void GetBestDialogue_RowProperties(const FNPC_Dialogues& BestNPC_Row);
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
-	void GetBestChoice_RowProperties(const FMainCharacterChoices& BestMC_Row);
+	void GetNextChoice_RowProperties(const FMainCharacterChoices& NextChoice_Row);
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
 	bool FilterDialogues();
+	
+	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
+	bool FilterChoices(FName ChoiceID);
 
 	
 	

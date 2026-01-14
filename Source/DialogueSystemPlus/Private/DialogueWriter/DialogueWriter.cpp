@@ -24,7 +24,7 @@ void UDialogueWriter::GenerateDialogueData()
 	VisitedNPC_Nodes.Empty();
 	VisitedMC_Nodes.Empty();
 	VisitedMC_DialogueNodes.Empty();
-	RootNPC_Nodes.Empty(); // Can be changed
+	RootNPC_Nodes.Empty(); 
 	ActiveIDs.Empty(); 
 	
 	// Checking for if graph has some nodes.
@@ -93,7 +93,7 @@ void UDialogueWriter::GenerateDialogueData()
 	if (FoundIllegalRoot)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Dialogue Data Generation aborted due to illegal root!"));
-		return; //can be edited
+		return; 
 	}
     
 	
@@ -224,34 +224,11 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 				{
 					if (UMainCharacterChoices_Node* Next_MainCharacterChoicesNode = Cast<UMainCharacterChoices_Node>(LinkedPin->GetOwningNode()))
 					{
-						
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
+						NPCNode->NPC_Row.NextChoiceID = Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1;
 						
 						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
 						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
 						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
-
-						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Dialogues)
-						{
-							Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues.AddUnique(IncomingID);
-							Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues.AddUnique(IncomingID);
-							Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues.AddUnique(IncomingID);
-						}
-						
-						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Choices)
-						{
-							Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Choices.AddUnique(IncomingID);
-							Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Choices.AddUnique(IncomingID);
-							Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Choices.AddUnique(IncomingID);
-						}
-						
-						const FGameplayTagContainer& IncomingTags = NPCNode->NPC_Row.RelatedGlobalEvents;
-						
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedGlobalEvents.AppendTags(IncomingTags);
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedGlobalEvents.AppendTags(IncomingTags);
-						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedGlobalEvents.AppendTags(IncomingTags);
 						
 						AddToDataTable(NPCNode);
 						HandleAutomatedData(Next_MainCharacterChoicesNode); 
@@ -261,17 +238,6 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						NPCNode->NPC_Row.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
 						
 						Next_NPCNode->NPC_Row.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
-						Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(NPCNode->NPC_Row.RelatedGlobalEvents);
-						Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
-						
-						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Dialogues)
-						{
-							Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
-						}
-						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Choices)
-						{
-							Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
-						}
 						
 						AddToDataTable(NPCNode);
 						HandleAutomatedData(Next_NPCNode);
@@ -281,17 +247,6 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						NPCNode->NPC_Row.NextDialogueID = Next_PlayerDialogueNode->MC_DialogueRow.DialogueID;
 						
 						Next_PlayerDialogueNode->MC_DialogueRow.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
-						Next_PlayerDialogueNode->MC_DialogueRow.RelatedGlobalEvents.AppendTags(NPCNode->NPC_Row.RelatedGlobalEvents);
-						Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues.AddUnique(NPCNode->NPC_Row.DialogueID);
-						
-						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Dialogues)
-						{
-							Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues.AddUnique(IncomingID);
-						}
-						for (const FName& IncomingID : NPCNode->NPC_Row.RelatedNPC_Choices)
-						{
-							Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Choices.AddUnique(IncomingID);
-						}
 						
 						AddToDataTable(NPCNode);
 						HandleAutomatedData(Next_PlayerDialogueNode);
@@ -338,63 +293,20 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						{
 							if (i == 0) // Choice1
 							{
-								Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(MainCharacterChoicesNode->AllChoice_Row.Choice1.ChoiceID1);
-								
-								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Dialogues)
-								{
-									Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
-								}
-								
-								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedNPC_Choices)
-								{
-									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
-								}
-								
-								const FGameplayTagContainer& IncomingTags = MainCharacterChoicesNode->AllChoice_Row.Choice1.RelatedGlobalEvents;
-								Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(IncomingTags);
-								
-								
+								MainCharacterChoicesNode->AllChoice_Row.Choice1.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
 								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner;
-								
 							}
 							
 							else if (i == 1) // Choice 2
 							{
-								Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(MainCharacterChoicesNode->AllChoice_Row.Choice2.ChoiceID2);
-								
-								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Dialogues)
-								{
-									Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
-								}
-								
-								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedNPC_Choices)
-								{
-									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
-								}
-								
-								const FGameplayTagContainer& IncomingTags = MainCharacterChoicesNode->AllChoice_Row.Choice2.RelatedGlobalEvents;
-								Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(IncomingTags);
-								
-								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner;
+								MainCharacterChoicesNode->AllChoice_Row.Choice2.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
+								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice2.ConversationPartner;
 							}
 							
 							else if (i == 2) // Choice 3
 							{
-								Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(MainCharacterChoicesNode->AllChoice_Row.Choice3.ChoiceID3);
-								
-								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Dialogues)
-								{
-									Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
-								}
-								
-								for (const FName& IncomingID : MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedNPC_Choices)
-								{
-									Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
-								}
-								const FGameplayTagContainer& IncomingTags = MainCharacterChoicesNode->AllChoice_Row.Choice3.RelatedGlobalEvents;
-								Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(IncomingTags);
-								
-								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner;
+								MainCharacterChoicesNode->AllChoice_Row.Choice2.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
+								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice3.ConversationPartner;
 							}
 							
 							AddToDataTable(MainCharacterChoicesNode);
@@ -406,10 +318,12 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 			else
 			{
 				//AddToDataTable(MainCharacterChoicesNode);
-				
-				MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = true;
+				/*
+				* MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = true;
 				MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = true;
 				MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = true;
+				 */
+				
 			}
 		}
 	}
@@ -435,19 +349,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 					if (UNPC_DialogueNode* Next_NPCNode = Cast<UNPC_DialogueNode>(LinkedPin->GetOwningNode()))
 					{
 						MainCharacterDialogueNode->MC_DialogueRow.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
-						
 						Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterDialogueNode->MC_DialogueRow.ConversationPartner;
-						Next_NPCNode->NPC_Row.RelatedGlobalEvents.AppendTags(MainCharacterDialogueNode->MC_DialogueRow.RelatedGlobalEvents);
-						Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(MainCharacterDialogueNode->MC_DialogueRow.DialogueID);
-						
-						for (const FName& IncomingID : MainCharacterDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues)
-						{
-							Next_NPCNode->NPC_Row.RelatedNPC_Dialogues.AddUnique(IncomingID);
-						}
-						for (const FName& IncomingID : MainCharacterDialogueNode->MC_DialogueRow.RelatedNPC_Choices)
-						{
-							Next_NPCNode->NPC_Row.RelatedNPC_Choices.AddUnique(IncomingID);
-						}
 						
 						AddToDataTable(MainCharacterDialogueNode);
 						HandleAutomatedData(Next_NPCNode);
@@ -455,19 +357,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 					else if (UMainCharacterDialogue_Node* Next_PlayerDialogueNode = Cast<UMainCharacterDialogue_Node>(HandledNode))
 					{
 						MainCharacterDialogueNode->MC_DialogueRow.NextDialogueID = Next_PlayerDialogueNode->MC_DialogueRow.DialogueID;
-						
 						Next_PlayerDialogueNode->MC_DialogueRow.ConversationPartner = MainCharacterDialogueNode->MC_DialogueRow.ConversationPartner;
-						Next_PlayerDialogueNode->MC_DialogueRow.RelatedGlobalEvents.AppendTags(MainCharacterDialogueNode->MC_DialogueRow.RelatedGlobalEvents);
-						Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues.AddUnique(MainCharacterDialogueNode->MC_DialogueRow.DialogueID);
-						
-						for (const FName& IncomingID : MainCharacterDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues)
-						{
-							Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Dialogues.AddUnique(IncomingID);
-						}
-						for (const FName& IncomingID : MainCharacterDialogueNode->MC_DialogueRow.RelatedNPC_Choices)
-						{
-							Next_PlayerDialogueNode->MC_DialogueRow.RelatedNPC_Choices.AddUnique(IncomingID);
-						}
 						
 						AddToDataTable(MainCharacterDialogueNode);
 						HandleAutomatedData(Next_PlayerDialogueNode);

@@ -104,29 +104,6 @@ void UMainCharacterChoices_Node::PostEditImport()
 {
 	Super::PostEditImport();
 
-	/*
-	* this->AllChoice_Row.Choice1.ChoiceID1 = FName(*FGuid::NewGuid().ToString());
-	this->AllChoice_Row.Choice2.ChoiceID2 = FName(*FGuid::NewGuid().ToString());
-	this->AllChoice_Row.Choice3.ChoiceID3 = FName(*FGuid::NewGuid().ToString());
-	
-	this->AllChoice_Row.Choice1.EndOfDialogue = false;
-	this->AllChoice_Row.Choice2.EndOfDialogue = false;
-	this->AllChoice_Row.Choice3.EndOfDialogue = false;
-	
-	this->AllChoice_Row.Choice1.ConversationPartner = EConversationPartner::DoesntMatter;
-	this->AllChoice_Row.Choice2.ConversationPartner = EConversationPartner::DoesntMatter;
-	this->AllChoice_Row.Choice3.ConversationPartner = EConversationPartner::DoesntMatter;
-	
-	this->AllChoice_Row.Choice1.RelatedNPC_Choices.Empty();
-	this->AllChoice_Row.Choice2.RelatedNPC_Choices.Empty();
-	this->AllChoice_Row.Choice3.RelatedNPC_Choices.Empty();
-	
-	this->AllChoice_Row.Choice1.RelatedNPC_Choices.Empty();
-	this->AllChoice_Row.Choice2.RelatedNPC_Choices.Empty();
-	this->AllChoice_Row.Choice3.RelatedNPC_Choices.Empty();
-	 */
-	
-	
 	UEdGraph* ParentGraph = GetGraph();
 	if (ParentGraph)
 	{
@@ -148,31 +125,22 @@ void UMainCharacterChoices_Node::PostEditImport()
 
 		if (this->AllChoice_Row.Choice1.ChoiceID1.IsNone() || IsCopy)
 		{
-			
 			this->AllChoice_Row.Choice1.ChoiceID1 = FName(*FGuid::NewGuid().ToString());
 			this->AllChoice_Row.Choice2.ChoiceID2 = FName(*FGuid::NewGuid().ToString());
 			this->AllChoice_Row.Choice3.ChoiceID3 = FName(*FGuid::NewGuid().ToString());
 			
-			
-			this->AllChoice_Row.Choice1.RelatedNPC_Dialogues.Empty();
-			this->AllChoice_Row.Choice1.RelatedNPC_Choices.Empty();
-			this->AllChoice_Row.Choice1.RelatedGlobalEvents.Reset();
 			this->AllChoice_Row.Choice1.EndOfDialogue = false;
 			this->AllChoice_Row.Choice1.ConversationPartner = EConversationPartner::DoesntMatter;
 
-			
-			this->AllChoice_Row.Choice2.RelatedNPC_Dialogues.Empty();
-			this->AllChoice_Row.Choice2.RelatedNPC_Choices.Empty();
-			this->AllChoice_Row.Choice2.RelatedGlobalEvents.Reset();
 			this->AllChoice_Row.Choice2.EndOfDialogue = false;
 			this->AllChoice_Row.Choice2.ConversationPartner = EConversationPartner::DoesntMatter;
 
-			
-			this->AllChoice_Row.Choice3.RelatedNPC_Dialogues.Empty();
-			this->AllChoice_Row.Choice3.RelatedNPC_Choices.Empty();
-			this->AllChoice_Row.Choice3.RelatedGlobalEvents.Reset();
 			this->AllChoice_Row.Choice3.EndOfDialogue = false;
 			this->AllChoice_Row.Choice3.ConversationPartner = EConversationPartner::DoesntMatter;
+			
+			this->AllChoice_Row.Choice1.NextDialogueID = NAME_None;
+			this->AllChoice_Row.Choice2.NextDialogueID = NAME_None;
+			this->AllChoice_Row.Choice3.NextDialogueID = NAME_None;
 		}
 	}
 	

@@ -133,10 +133,10 @@ void UMainCharacterDialogue_Node::PostEditImport()
 			this->MC_DialogueRow.DialogueID = FName(*FGuid::NewGuid().ToString());
 			
 			this->MC_DialogueRow.RelatedNPC_Dialogues.Empty();
-			this->MC_DialogueRow.RelatedNPC_Choices.Empty();
 			this->MC_DialogueRow.RelatedGlobalEvents.Reset();
 			this->MC_DialogueRow.IsRoot = false;
 			this->MC_DialogueRow.EndOfDialogue = false;
+			this->MC_DialogueRow.NextDialogueID = NAME_None;
 		}
 	}
 	

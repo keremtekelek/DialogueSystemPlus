@@ -145,10 +145,11 @@ void UNPC_DialogueNode::PostEditImport()
 			this->NPC_Row.DialogueID = FName(*FGuid::NewGuid().ToString());
 			
 			this->NPC_Row.RelatedNPC_Dialogues.Empty();
-			this->NPC_Row.RelatedNPC_Choices.Empty();
 			this->NPC_Row.IsRoot = false; 
 			this->NPC_Row.EndOfDialogue = false;
 			this->NPC_Row.RelatedGlobalEvents.Reset();
+			this->NPC_Row.NextChoiceID = NAME_None;
+			this->NPC_Row.NextDialogueID = NAME_None;
 		}
 	}
 }
