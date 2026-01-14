@@ -305,7 +305,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 							
 							else if (i == 2) // Choice 3
 							{
-								MainCharacterChoicesNode->AllChoice_Row.Choice2.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
+								MainCharacterChoicesNode->AllChoice_Row.Choice3.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
 								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice3.ConversationPartner;
 							}
 							

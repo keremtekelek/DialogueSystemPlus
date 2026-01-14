@@ -58,12 +58,8 @@ ETickableTickType USubsystem_Dialogue::GetTickableTickType() const
 
 TStatId USubsystem_Dialogue::GetStatId() const
 {
-	
 	RETURN_QUICK_DECLARE_CYCLE_STAT(USubsystem_EventManager, STATGROUP_Tickables);
 }
-
-
-
 
 
 // This function works when interaction started with Main Character with NPC.
@@ -108,34 +104,6 @@ void USubsystem_Dialogue::GettingVariables()
 	}
 }
 
-//Continue Dialogue
-void USubsystem_Dialogue::ContinueDialogue()
-{
-	PrintString("Continue Dialogue has been called",2.f,FColor::Red);
-	
-	if (AC_InteractionSystem->CanMainCharacterInteract)
-	{
-		//that means we already in conversation with npc when this ContinueDialogue called.
-		//so we shouldn't score the dialogues. If we score, this dialogue system will crash like former versions of this dialogue system
-		
-		ControlDialogue();
-	}
-	else
-	{
-		//we can score the dialogues
-		
-		if (FilterDialogues() == false)
-		{
-			PrintString("Filter Dialogue has been failed", 2.f,FColor::Magenta);
-			return;
-		}
-		else
-		{
-			ControlDialogue();
-		}
-	}
-}
-
 void USubsystem_Dialogue::ControlDialogue()
 {
 	if (NPC_EndOfDialogue)
@@ -146,12 +114,10 @@ void USubsystem_Dialogue::ControlDialogue()
 			return;
 		}
 
-		
 		ShowDialogue(NPC_DialogueText,NPC_ConversationPartner);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
 		EventManager_Subsystem->TriggerEvent(NPC_EventsToTrigger);
 		
-
 		if (NPC_DialogueSound)
 		{
 			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
@@ -361,7 +327,6 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 			}
 
 			DSM_NPC.Add(DialogueRow->DialogueID, DialogueScore_Value);
-			
 		}
 
 		FName BestDialogueID = NAME_None;
@@ -437,7 +402,7 @@ void USubsystem_Dialogue::GetBestDialogue_RowProperties(const FNPC_Dialogues& Be
 // Adding Score Value
 void USubsystem_Dialogue::AddScoreValue(int ScoreToAdd)
 {
-		DialogueScore_Value += ScoreToAdd;
+	DialogueScore_Value += ScoreToAdd;
 }
 
 void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
@@ -545,7 +510,6 @@ void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 	PlayerController->StopMovement();
 	MainCharacter->GetCharacterMovement()->StopMovementImmediately();
 	
-	
 	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(WBP_Dialogue->TakeWidget());
 	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
@@ -587,7 +551,6 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 		ProcessedDialogues.AddUnique(FoundRow->DialogueID);
 		EventManager_Subsystem->TriggerEvent(FoundRow->EventsToTrigger);
 		
-
 		if (FoundRow->DialogueSound)
 		{
 			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
@@ -602,7 +565,6 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 			GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
 			GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,CalculateDialogueDuration(FoundRow->DialogueText),false);
 		}
-		
 	}
 	else
 	{
@@ -610,7 +572,6 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 		{
 			return;
 		}
-
 		if (IsNPC)
 		{
 			ShowDialogue(FoundRow->DialogueText,FoundRow->ConversationPartner);
@@ -620,7 +581,6 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 			ShowDialogue(FoundRow->DialogueText,EConversationPartner::DoesntMatter);
 		}
 		
-		//WBP_Dialogue->ShowDialogue(FoundRow->DialogueText);
 		ProcessedDialogues.AddUnique(FoundRow->DialogueID);
 		EventManager_Subsystem->TriggerEvent(FoundRow->EventsToTrigger);
 
@@ -629,42 +589,64 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 			FVector SoundLocation = AC_DialogueSystem->OwnerLocation;
 			UGameplayStatics::PlaySoundAtLocation(this, NPC_DialogueSound,SoundLocation);
 
-			
 			if (!FoundRow->NextDialogueID.IsNone())
 			{
 				FName NextID = FoundRow->NextDialogueID;
-				ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds,NextID);
+				ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds, NextID);
 				GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
-					
+             
 				GetWorld()->GetTimerManager().SetTimer(ShowNextDialogueHandle,ShowNextDialogueDelegate,FoundRow->DialogueSound->Duration + 1.6f,false);
+			}
+			else if (!FoundRow->NextChoiceID.IsNone()) 
+			{
+				if (FilterChoices(FoundRow->NextChoiceID)) 
+				{
+					GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
+					GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,FoundRow->DialogueSound->Duration + 1.6f,false);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("NextChoiceID has not found in DataTable!"));
+					FinishDialogue();
+				}
 			}
 			else
 			{
 				GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
-				
-				GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,FoundRow->DialogueSound->Duration + 1.6f,false);
+				GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,FoundRow->DialogueSound->Duration + 1.6f,false);
 			}
+			
 		}
 		else
 		{
 			if (!FoundRow->NextDialogueID.IsNone())
 			{
 				FName NextID = FoundRow->NextDialogueID;
-				ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds,NextID);
-					
-				GetWorld()->GetTimerManager().SetTimer(ShowNextDialogueHandle,ShowNextDialogueDelegate,CalculateDialogueDuration(FoundRow->DialogueText),false);
+				ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds, NextID);
 				
+				GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
+				GetWorld()->GetTimerManager().SetTimer(ShowNextDialogueHandle,ShowNextDialogueDelegate,CalculateDialogueDuration(FoundRow->DialogueText),false);
+			}
+			else if (!FoundRow->NextChoiceID.IsNone()) 
+			{
+				if (FilterChoices(FoundRow->NextChoiceID)) 
+				{
+					GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
+					GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,CalculateDialogueDuration(FoundRow->DialogueText),false);
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("NextChoiceID has not found in DataTable!"));
+					FinishDialogue();
+				}
 			}
 			else
 			{
 				GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
-				
-				GetWorld()->GetTimerManager().SetTimer(DelayShowChoiceHandle,this, &USubsystem_Dialogue::ShowChoiceAfterSeconds,CalculateDialogueDuration(FoundRow->DialogueText),false);
+				GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,CalculateDialogueDuration(FoundRow->DialogueText),false);
 			}
 		}
 	}
-
-	
 }
 
 void USubsystem_Dialogue::CloseDialogueAfterSeconds()

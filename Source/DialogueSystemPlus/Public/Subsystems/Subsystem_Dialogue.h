@@ -289,9 +289,6 @@ public:
 	void StartDialogue();
 
 	UFUNCTION(BlueprintCallable)
-	void ContinueDialogue();
-
-	UFUNCTION(BlueprintCallable)
 	void FinishDialogue();
 	
 	UFUNCTION(BlueprintCallable)
