@@ -5,6 +5,8 @@
 #include "K2Node.h"
 #include "GameplayTagContainer.h"
 #include "Enums/GlobalEnums.h"
+#include "ToolMenu.h"
+#include "ToolMenuSection.h"
 #include "Structs/NPC/S_NPC_Dialogues.h"
 #include "EdGraphSchema_K2.h"
 #include "MainCharacterDialogue_Node.generated.h"
@@ -54,5 +56,7 @@ public:
 	virtual void PostEditImport() override;
 	
 	virtual bool IsNodePure() const override { return true; }
+	
+	virtual void GetNodeContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const override;
 	
 };

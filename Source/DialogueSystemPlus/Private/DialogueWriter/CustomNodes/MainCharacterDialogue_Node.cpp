@@ -137,9 +137,99 @@ void UMainCharacterDialogue_Node::PostEditImport()
 			this->MC_DialogueRow.IsRoot = false;
 			this->MC_DialogueRow.EndOfDialogue = false;
 			this->MC_DialogueRow.NextDialogueID = NAME_None;
+			this->MC_DialogueRow.NextChoiceID = NAME_None;
 		}
 	}
 	
+}
+
+
+void UMainCharacterDialogue_Node::GetNodeContextMenuActions(UToolMenu* Menu, UGraphNodeContextMenuContext* Context) const
+{
+	Super::GetNodeContextMenuActions(Menu, Context);
+	
+	UMainCharacterDialogue_Node* MutableThis = const_cast<UMainCharacterDialogue_Node*>(this);
+	
+	FToolMenuSection& Section = Menu->AddSection("DialogueActions", LOCTEXT("DialogueActions", "Dialogue System Actions"));
+	
+	FName CurrentNodeID = MutableThis->MC_DialogueRow.DialogueID;
+
+	Section.AddSubMenu(
+		"ShowDialogueID_SubMenu",
+		LOCTEXT("ShowID_MainLabel", "Show Dialogue ID"), 
+		LOCTEXT("ShowID_MainTooltip", "Shows the Player Dialogue Node's DialogueID"), 
+		FNewMenuDelegate::CreateLambda([CurrentNodeID](FMenuBuilder& MenuBuilder)
+		{
+			if (!CurrentNodeID.IsNone() && !CurrentNodeID.ToString().IsEmpty())
+			{
+				FString FullIDString = CurrentNodeID.ToString();
+				FString FormattedID = FullIDString;
+
+				if (FullIDString.Len() > 8)
+				{
+					FormattedID = FString::Printf(TEXT("%s...%s"), *FullIDString.Left(4), *FullIDString.Right(4));
+				}
+
+				MenuBuilder.AddMenuEntry(
+					FText::FromString(FormattedID), 
+					FText::Format(LOCTEXT("ID_Tooltip", "Full ID: {0}"), FText::FromString(FullIDString)), 
+					FSlateIcon(), 
+					FUIAction()
+				);
+			}
+			else
+			{
+				MenuBuilder.AddMenuEntry(
+					LOCTEXT("NoID_ErrorLabel", "NO ID FOUND!"), 
+					LOCTEXT("NoID_ErrorTooltip", "This node has no Dialogue ID. This will definitely cause errors!"), 
+					FSlateIcon(), 
+					FUIAction() 
+				);
+			}
+		}),
+		false, 
+		FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Visible") 
+	);
+	
+	
+	FName CurrentNextDialogueID = MutableThis->MC_DialogueRow.NextDialogueID;
+
+	Section.AddSubMenu(
+		"ShowNextDialogueID_SubMenu",
+		LOCTEXT("ShowNextID_MainLabel", "Show Next Dialogue ID"), 
+		LOCTEXT("ShowNextID_MainTooltip", "Shows Player Dialogue Node's Next Dialogue ID"), 
+		FNewMenuDelegate::CreateLambda([CurrentNextDialogueID](FMenuBuilder& MenuBuilder)
+		{
+			if (!CurrentNextDialogueID.IsNone() && !CurrentNextDialogueID.ToString().IsEmpty())
+			{
+				FString FullIDString = CurrentNextDialogueID.ToString();
+				FString FormattedID = FullIDString;
+
+				if (FullIDString.Len() > 8)
+				{
+					FormattedID = FString::Printf(TEXT("%s...%s"), *FullIDString.Left(4), *FullIDString.Right(4));
+				}
+
+				MenuBuilder.AddMenuEntry(
+					FText::FromString(FormattedID), 
+					FText::Format(LOCTEXT("ID_Tooltip", "Full ID: {0}"), FText::FromString(FullIDString)), 
+					FSlateIcon(), 
+					FUIAction()
+				);
+			}
+			else
+			{
+				MenuBuilder.AddMenuEntry(
+					LOCTEXT("NoNextID_Label", "Empty"), 
+					LOCTEXT("NoNextID_Tooltip", "There is no Next Dialogue ID to show!"), 
+					FSlateIcon(), 
+					FUIAction() 
+				);
+			}
+		}),
+		false, 
+		FSlateIcon(FAppStyle::GetAppStyleSetName(), "Icons.Visible") 
+	);
 }
 
 #undef LOCTEXT_NAMESPACE

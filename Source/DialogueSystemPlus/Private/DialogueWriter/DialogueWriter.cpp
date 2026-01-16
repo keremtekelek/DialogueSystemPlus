@@ -49,7 +49,7 @@ void UDialogueWriter::GenerateDialogueData()
 	
 	
 	// Checking for illegal root(especially for root choice node)
-	bool FoundIllegalRoot = false;
+	//bool FoundIllegalRoot = false;
 
 	for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
 	{
@@ -61,17 +61,16 @@ void UDialogueWriter::GenerateDialogueData()
 			
 			if (UMainCharacterChoices_Node* ChoiceNode = Cast<UMainCharacterChoices_Node>(Node))
 			{
-				
 				UEdGraphPin* InputPin = ChoiceNode->FindPin(UEdGraphSchema_K2::PN_Execute);
 
-				
 				if (InputPin && InputPin->LinkedTo.Num() == 0)
 				{
 					UE_LOG(LogTemp, Error, TEXT("ERROR: Choice Node not cannot be Root node."))
 
 					FText ErrorMsg = FText::FromString(TEXT("ERROR: Choice Node cannot be Root node"));
 					FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
-					FoundIllegalRoot = true;
+					//FoundIllegalRoot = true;
+					FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(ChoiceNode);
 				}
 			}
 			else if (UMainCharacterDialogue_Node* MC_DialogueNode = Cast<UMainCharacterDialogue_Node>(Node))
@@ -84,17 +83,30 @@ void UDialogueWriter::GenerateDialogueData()
 
 					FText ErrorMsg = FText::FromString(TEXT("ERROR: Player Dialogue Node not cannot be Root node."));
 					FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
-					FoundIllegalRoot = true;
+					//FoundIllegalRoot = true;
+					FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(MC_DialogueNode);
+				}
+				
+				if (MC_DialogueNode->MC_DialogueRow.NextDialogueID == MC_DialogueNode->MC_DialogueRow.DialogueID)
+				{
+					UE_LOG(LogTemp, Error, TEXT("ERROR: Player Dialogue Node's NextDialogueID and DialogueID is equal!"))
+					
+					FText ErrorMsg = FText::FromString(TEXT("ERROR: Player Dialogue Node's NextDialogueID and DialogueID is equal!"));
+					FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
+					FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(MC_DialogueNode);
 				}
 			}
 		}
 	}
 
-	if (FoundIllegalRoot)
+	/*
+	* if (FoundIllegalRoot)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Dialogue Data Generation aborted due to illegal root!"));
 		return; 
 	}
+	 */
+	
     
 	
 	
@@ -354,7 +366,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						AddToDataTable(MainCharacterDialogueNode);
 						HandleAutomatedData(Next_NPCNode);
 					}
-					else if (UMainCharacterDialogue_Node* Next_PlayerDialogueNode = Cast<UMainCharacterDialogue_Node>(HandledNode))
+					else if (UMainCharacterDialogue_Node* Next_PlayerDialogueNode = Cast<UMainCharacterDialogue_Node>(LinkedPin->GetOwningNode()))
 					{
 						MainCharacterDialogueNode->MC_DialogueRow.NextDialogueID = Next_PlayerDialogueNode->MC_DialogueRow.DialogueID;
 						Next_PlayerDialogueNode->MC_DialogueRow.ConversationPartner = MainCharacterDialogueNode->MC_DialogueRow.ConversationPartner;
