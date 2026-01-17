@@ -137,7 +137,7 @@ void USubsystem_Dialogue::ControlDialogue()
 			UE_LOG(LogTemp, Warning, TEXT("ProcessedDialogues has your best NPC_DialogueID, Dialogue's EndOfDialogue = false"))
 			return;
 		}
-
+		
 		ShowDialogue(NPC_DialogueText,NPC_ConversationPartner);
 		ProcessedDialogues.AddUnique(NPC_DialogueID);
 		EventManager_Subsystem->TriggerEvent(NPC_EventsToTrigger);
@@ -250,24 +250,10 @@ void USubsystem_Dialogue::FinishDialogue()
 	GetWorld()->GetTimerManager().ClearTimer(DelayShowChoiceHandle);
 	GetWorld()->GetTimerManager().ClearTimer(DelayCloseDialogueHandle);
 	
-	while (PlayerController->IsMoveInputIgnored())
-	{
-		PlayerController->SetIgnoreMoveInput(false);
-	}
-
-	while (PlayerController->IsLookInputIgnored())
-	{
-		PlayerController->SetIgnoreLookInput(false);
-	}
-	
-	FInputModeGameOnly InputMode;
-	PlayerController->SetInputMode(InputMode);
-	PlayerController->bShowMouseCursor = false;
+	OpenOrCloseCursor(false);
 	
 	WBP_Dialogue->CloseDialogue();
 	WBP_Dialogue->CloseChoices();
-	
-	FSlateApplication::Get().SetAllUserFocusToGameViewport();
 }
 
 
@@ -428,6 +414,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		EventManager_Subsystem->TriggerEvent(Choice1_EventsToTrigger);
 		
 		TargetDialogueID = Choice1_NextDialogueID;
+		OpenOrCloseCursor(false);
 	}
 	else if (ChosenButton == EChosenOption::Choice2)
 	{
@@ -446,6 +433,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		EventManager_Subsystem->TriggerEvent(Choice2_EventsToTrigger);
 		
 		TargetDialogueID = Choice2_NextDialogueID;
+		OpenOrCloseCursor(false);
 	}
 	else if (ChosenButton == EChosenOption::Choice3)
 	{
@@ -464,6 +452,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		EventManager_Subsystem->TriggerEvent(Choice3_EventsToTrigger);
 		
 		TargetDialogueID = Choice3_NextDialogueID;
+		OpenOrCloseCursor(false);
 	}
 	
 	if (!TargetDialogueID.IsNone())
@@ -505,16 +494,7 @@ float USubsystem_Dialogue::CalculateDialogueDuration(FText DialogueText)
 void USubsystem_Dialogue::ShowChoiceAfterSeconds()
 {
 	WBP_Dialogue->ShowChoices(Choice1_Text, Choice2_Text, Choice3_Text);
-	
-	PlayerController->SetIgnoreMoveInput(true);
-	PlayerController->StopMovement();
-	MainCharacter->GetCharacterMovement()->StopMovementImmediately();
-	
-	FInputModeUIOnly InputMode;
-	InputMode.SetWidgetToFocus(WBP_Dialogue->TakeWidget());
-	InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	PlayerController->SetInputMode(InputMode);
-	PlayerController->bShowMouseCursor = true;
+	OpenOrCloseCursor(true);
 
 	GetWorld()->GetTimerManager().ClearTimer(DelayShowChoiceHandle);
 
@@ -594,7 +574,7 @@ void USubsystem_Dialogue::ShowNextDialogueAfterSeconds(FName NextDialogueID)
 				FName NextID = FoundRow->NextDialogueID;
 				ShowNextDialogueDelegate.BindUObject(this, &USubsystem_Dialogue::ShowNextDialogueAfterSeconds, NextID);
 				GetWorld()->GetTimerManager().ClearTimer(ShowNextDialogueHandle);
-             
+				
 				GetWorld()->GetTimerManager().SetTimer(ShowNextDialogueHandle,ShowNextDialogueDelegate,FoundRow->DialogueSound->Duration + 1.6f,false);
 			}
 			else if (!FoundRow->NextChoiceID.IsNone()) 
@@ -786,7 +766,39 @@ void USubsystem_Dialogue::ShowDialogue(FText DialogueToShow,EConversationPartner
 	}
 }
 
+void USubsystem_Dialogue::SkipDialogue()
+{
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
 
+	if (TimerManager.IsTimerActive(DelayShowChoiceHandle))
+	{
+		TimerManager.ClearTimer(DelayShowChoiceHandle);
+		ShowChoiceAfterSeconds(); 
+		PrintString("Skipped to the Choices", 1.f, FColor::Green);
+		return;
+	}
+
+	if (TimerManager.IsTimerActive(DelayCloseDialogueHandle))
+	{
+		TimerManager.ClearTimer(DelayCloseDialogueHandle);
+		CloseDialogueAfterSeconds(); 
+		PrintString("Skipped to the Close Dialogue", 1.f, FColor::Green);
+		return;
+	}
+
+	if (TimerManager.IsTimerActive(ShowNextDialogueHandle))
+	{
+		TimerManager.ClearTimer(ShowNextDialogueHandle);
+		TimerManager.SetTimer(ShowNextDialogueHandle, ShowNextDialogueDelegate, 0.001f, false);
+        
+		PrintString("Skipped to the Next Dialogue", 1.f, FColor::Green);
+		return;
+	}
+	PrintString("Skip Dialogue Worked!", 1.5f, FColor::Yellow);
+}
+
+
+//Events 
 void USubsystem_Dialogue::EventReceived(FGameplayTag EventTag)
 {
 	HandleGameEvent(EventTag);
@@ -797,6 +809,40 @@ void USubsystem_Dialogue::HandleGameEvent(FGameplayTag EventTag)
 	
 }
 
+//
+
+void USubsystem_Dialogue::OpenOrCloseCursor(bool OpenOrCloseValue)
+{
+	if (OpenOrCloseValue)
+	{
+		PlayerController->SetIgnoreMoveInput(true);
+		PlayerController->StopMovement();
+		MainCharacter->GetCharacterMovement()->StopMovementImmediately();
+	
+		FInputModeUIOnly InputMode;
+		InputMode.SetWidgetToFocus(WBP_Dialogue->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = true;
+	}
+	else
+	{
+		while (PlayerController->IsMoveInputIgnored())
+		{
+			PlayerController->SetIgnoreMoveInput(false);
+		}
+
+		while (PlayerController->IsLookInputIgnored())
+		{
+			PlayerController->SetIgnoreLookInput(false);
+		}
+	
+		FInputModeGameOnly InputMode;
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = false;
+		FSlateApplication::Get().SetAllUserFocusToGameViewport();
+	}
+}
 
 //DEBUG Functions
 

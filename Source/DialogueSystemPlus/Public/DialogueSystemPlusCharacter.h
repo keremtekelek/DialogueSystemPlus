@@ -54,6 +54,11 @@ class ADialogueSystemPlusCharacter : public ACharacter, public IInterface_MainCh
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* InteractAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SkipDialogueAction;
+	
+	
 
 	UPROPERTY()
 	bool IsCharacterSprinting = false;
@@ -75,6 +80,7 @@ protected:
 	void SprintStart(const FInputActionValue& Value);
 	void SprintEnd(const FInputActionValue& Value);
 	void Interact(const FInputActionValue& Value);
+	void SkipDialogue(const FInputActionValue& Value);
 
 			
 

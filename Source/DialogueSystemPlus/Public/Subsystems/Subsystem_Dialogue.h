@@ -270,12 +270,9 @@ public:
 	UPROPERTY()
 	float MinimumDialogueLength = 0.7f;
 	
-	
 	//
-	UPROPERTY()
-	EConversationPartner PreviousConversationPartner;
 	
-
+	
 	//***FUNCTIONS***
 public:
 
@@ -293,6 +290,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void ControlDialogue();
+	
+	UFUNCTION(BlueprintCallable)
+	void SkipDialogue();
 
 	
 	UFUNCTION(BlueprintCallable, Category = "Dialogue Scoring")
@@ -315,7 +315,7 @@ public:
 
 	
 	
-
+	// Timer Functions
 	UFUNCTION(BlueprintCallable, Category = "Timer Functions")
 	void ShowChoiceAfterSeconds();
 
@@ -344,7 +344,9 @@ public:
 	UFUNCTION(Category = "Event Manager Functions")
 	void EventReceived(FGameplayTag EventTag);
 
-	
+	//
+	UFUNCTION()
+	void OpenOrCloseCursor(bool OpenOrCloseValue);
 	
 
 	// DEBUG

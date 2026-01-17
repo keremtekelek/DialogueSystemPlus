@@ -16,19 +16,15 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 ADialogueSystemPlusCharacter::ADialogueSystemPlusCharacter()
 {
-	
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 		
-	
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
 
-	
 	GetCharacterMovement()->bOrientRotationToMovement = true; 	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); 
 
-	
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 200.f;
@@ -36,15 +32,9 @@ ADialogueSystemPlusCharacter::ADialogueSystemPlusCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	
-	
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(GetMesh()); 
 	FollowCamera->bUsePawnControlRotation = true; 
-
-
-	
-	
 }
 
 // This function is needed as sockets are not present during construction
@@ -100,7 +90,6 @@ void ADialogueSystemPlusCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 		}
 	}
 	
-	
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		
@@ -117,6 +106,8 @@ void ADialogueSystemPlusCharacter::SetupPlayerInputComponent(UInputComponent* Pl
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ADialogueSystemPlusCharacter::SprintEnd);
 
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ADialogueSystemPlusCharacter::Interact);
+		
+		EnhancedInputComponent->BindAction(SkipDialogueAction, ETriggerEvent::Started,this,&ADialogueSystemPlusCharacter::SkipDialogue);
 	}
 	else
 	{
@@ -174,21 +165,19 @@ void ADialogueSystemPlusCharacter::SprintEnd(const FInputActionValue& Value)
 
 void ADialogueSystemPlusCharacter::Interact(const FInputActionValue& Value)
 {
-	/*
-	* if (UGameInstance* GI = GetGameInstance())
-	{
-		if (USubsystem_Dialogue* DialogueSubsystem = GI->GetSubsystem<USubsystem_Dialogue>())
-		{
-			DialogueSubsystem->Interacted();
-		}
-	}
-	 */
-
 	if (DialogueSubsystem)
 	{
 		DialogueSubsystem->Interacted();
 	}
 	
+}
+
+void ADialogueSystemPlusCharacter::SkipDialogue(const FInputActionValue& Value)
+{
+	if (DialogueSubsystem)
+	{
+		DialogueSubsystem->SkipDialogue();
+	}
 }
 
 
