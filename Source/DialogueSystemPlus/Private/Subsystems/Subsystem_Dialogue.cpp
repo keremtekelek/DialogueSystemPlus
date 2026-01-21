@@ -291,7 +291,7 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 				}
 				else
 				{
-					AddScoreValue(-10);
+					AddScoreValue(-10); 
 				}
 			}
 			
@@ -303,7 +303,7 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 				}
 				else
 				{
-					AddScoreValue(-10);
+					AddScoreValue(-10);  
 				}
 			}
 
