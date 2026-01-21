@@ -270,9 +270,13 @@ public:
 	UPROPERTY()
 	float MinimumDialogueLength = 0.7f;
 	
-	//
+	// Dialogue Properties
+	
 	UPROPERTY()
 	bool IsMainCharacterInDialogue = false;
+	
+	UPROPERTY()
+	EConversationPartner LastDialoguePartner;
 	
 	
 	//***FUNCTIONS***

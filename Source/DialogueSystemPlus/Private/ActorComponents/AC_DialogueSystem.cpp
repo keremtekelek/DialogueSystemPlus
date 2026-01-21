@@ -47,7 +47,7 @@ void UAC_DialogueSystem::GettingStaticVariables()
 		//Getting Data Table and DSM(Dialogue Score Map) from owner
 		IInterface_NPC_Mood::Execute_GetDataTableAndScoreData(Owner,DataTable_NPC, DSM_NPC);
 
-		//Gettng Owner NPC Name
+		//Getting Owner NPC Name
 		InteractedCharacter = IInterface_NPC_Mood::Execute_GetInteractedCharacter(Owner);
 	}
 }

@@ -25,6 +25,8 @@ void USubsystem_Dialogue::Initialize(FSubsystemCollectionBase& Collection)
 
 	DSM_MainCharacter.Empty();
 	DSM_NPC.Empty();
+	
+	LastDialoguePartner = EConversationPartner::DoesntMatter;
 }
 
 void USubsystem_Dialogue::Deinitialize()
@@ -43,10 +45,7 @@ void USubsystem_Dialogue::Tick(float DeltaTime)
 		if (EventManager_Subsystem)
 		{
 			ProcessedGlobalEvents = EventManager_Subsystem->TriggeredEvents;
-
-			//UE_LOG(LogTemp, Warning, TEXT("Processed Tags: %s"), *ProcessedGlobalEvents.ToStringSimple());
 		}
-		 
 		TimeSinceLastTick -= TickInterval; 
 	}
 }
@@ -69,12 +68,28 @@ void USubsystem_Dialogue::Interacted()
 	{
 		if (IsMainCharacterInDialogue)
 		{
-			// if the main character in dialogue, you cannot start a new deialogue
+			// if the main character in dialogue, you cannot start a new dialogue
 		}
 		else
 		{
+			//Otherwise, you can start a dialogue
+			
+			/*
+			 * But first, we should check to see if our dialogue partner now is same with last dialogue partner.
+			 * If it is, we shouldn't let the player start the new dialogue. Otherwise, all score and dialogue logic will
+			 * collapse. I mean not real collapse but wrong dialogues will display on the screen and we don't want that.
+			 */
+			
 			GettingVariables();
-			StartDialogue();
+			
+			if (InteractedCharacter == LastDialoguePartner)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Dialogue Partner and Last Dialogue Partner are the same!"));
+			}
+			else
+			{
+				StartDialogue();
+			}
 		}
 	}
 }
@@ -85,6 +100,7 @@ void USubsystem_Dialogue::StartDialogue()
 	if (FilterDialogues()) 
 	{
 		IsMainCharacterInDialogue = true;
+		LastDialoguePartner = InteractedCharacter;
 		ControlDialogue();
 	}
 	else
@@ -226,6 +242,7 @@ bool USubsystem_Dialogue::FilterDialogues()
 	return true;
 }
 
+//Filtering Choices
 bool USubsystem_Dialogue::FilterChoices(FName ChoiceID)
 {
 	FName NextChoiceID = ChoiceID;
@@ -251,6 +268,7 @@ bool USubsystem_Dialogue::FilterChoices(FName ChoiceID)
 	return true;
 }
 
+//Finishes Dialogue
 void USubsystem_Dialogue::FinishDialogue()
 {
 	PrintString("Finish Dialogue has been called",2.f,FColor::Red);
@@ -268,7 +286,7 @@ void USubsystem_Dialogue::FinishDialogue()
 
 
 
-
+// Scoring NPC Dialogues.
 FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 {
 	if (DataTable_NPC)
@@ -488,7 +506,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 	}
 }
 
-
+//Calculates Dialogue Duration
 float USubsystem_Dialogue::CalculateDialogueDuration(FText DialogueText)
 {
 	FString DialogueTextString = DialogueText.ToString();
@@ -808,7 +826,7 @@ void USubsystem_Dialogue::SkipDialogue()
 }
 
 
-//Events 
+//Event related functions
 void USubsystem_Dialogue::EventReceived(FGameplayTag EventTag)
 {
 	HandleGameEvent(EventTag);
@@ -819,8 +837,8 @@ void USubsystem_Dialogue::HandleGameEvent(FGameplayTag EventTag)
 	
 }
 
-//
 
+//Handles choice UI screen and cursor
 void USubsystem_Dialogue::OpenOrCloseCursor(bool OpenOrCloseValue)
 {
 	if (OpenOrCloseValue)
