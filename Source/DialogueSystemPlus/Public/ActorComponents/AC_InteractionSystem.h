@@ -41,7 +41,7 @@ public:
 	UAC_DialogueSystem* AC_DialogueSystem;
 
 	UPROPERTY(VisibleAnywhere)
-	bool CanMainCharacterInteract;
+	bool IsMainCharacterInDialogueCollision;
 
 public:
 

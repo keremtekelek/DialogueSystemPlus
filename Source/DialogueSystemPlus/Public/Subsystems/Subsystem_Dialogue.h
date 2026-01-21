@@ -271,6 +271,8 @@ public:
 	float MinimumDialogueLength = 0.7f;
 	
 	//
+	UPROPERTY()
+	bool IsMainCharacterInDialogue = false;
 	
 	
 	//***FUNCTIONS***

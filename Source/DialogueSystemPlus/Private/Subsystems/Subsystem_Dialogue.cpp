@@ -65,10 +65,17 @@ TStatId USubsystem_Dialogue::GetStatId() const
 // This function works when interaction started with Main Character with NPC.
 void USubsystem_Dialogue::Interacted()
 {
-	if (IsValid(AC_InteractionSystem) && AC_InteractionSystem->CanMainCharacterInteract == true)
+	if (IsValid(AC_InteractionSystem) && AC_InteractionSystem->IsMainCharacterInDialogueCollision == true)
 	{
-		GettingVariables();
-		StartDialogue();
+		if (IsMainCharacterInDialogue)
+		{
+			// if the main character in dialogue, you cannot start a new deialogue
+		}
+		else
+		{
+			GettingVariables();
+			StartDialogue();
+		}
 	}
 }
 
@@ -77,6 +84,7 @@ void USubsystem_Dialogue::StartDialogue()
 {
 	if (FilterDialogues()) 
 	{
+		IsMainCharacterInDialogue = true;
 		ControlDialogue();
 	}
 	else
@@ -254,6 +262,8 @@ void USubsystem_Dialogue::FinishDialogue()
 	
 	WBP_Dialogue->CloseDialogue();
 	WBP_Dialogue->CloseChoices();
+	
+	IsMainCharacterInDialogue = false;
 }
 
 

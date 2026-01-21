@@ -45,7 +45,7 @@ void UAC_InteractionSystem::OnTriggerBeginOverlap(AActor* OverlappedActor, AActo
 	
 	if (OtherActor->GetClass()->ImplementsInterface(UInterface_MainCharacter::StaticClass()))
 	{
-		CanMainCharacterInteract = true;
+		IsMainCharacterInDialogueCollision = true;
 	}
 }
 
@@ -59,7 +59,7 @@ void UAC_InteractionSystem::OnTriggerEndOverlap(AActor* OverlappedActor, AActor*
 
 	if (OtherActor->GetClass()->ImplementsInterface(UInterface_MainCharacter::StaticClass()))
 	{
-		CanMainCharacterInteract = false;
+		IsMainCharacterInDialogueCollision = false;
 	}
 }
 
