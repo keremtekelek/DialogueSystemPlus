@@ -54,6 +54,17 @@ struct FNPC_Dialogues : public FTableRowBase
 };
 
 
+USTRUCT(BlueprintType)
+struct FDisturb : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText DisturbText;
+	
+};
+
+
 
 
  

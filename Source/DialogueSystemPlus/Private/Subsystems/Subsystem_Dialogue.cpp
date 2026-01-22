@@ -5,8 +5,20 @@
 #include "DialogueSystemPlusCharacter.h"
 #include "PlayerController/PlayerControllerCPP.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Subsystems/Subsystem_EventManager.h"
 
+
+USubsystem_Dialogue::USubsystem_Dialogue()
+{
+	static ConstructorHelpers::FObjectFinder<UDataTable> DisturbTableObj(TEXT("/Game/01_MyContent/DataTables/Disturb/DT_Disturb"));
+
+	if (DisturbTableObj.Succeeded())
+	{
+		DT_Disturb = DisturbTableObj.Object;
+	}
+	
+}
 
 void USubsystem_Dialogue::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -85,6 +97,7 @@ void USubsystem_Dialogue::Interacted()
 			if (InteractedCharacter == LastDialoguePartner)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Dialogue Partner and Last Dialogue Partner are the same!"));
+				PlayDisturbDialogue();
 			}
 			else
 			{
@@ -823,6 +836,45 @@ void USubsystem_Dialogue::SkipDialogue()
 		return;
 	}
 	PrintString("Skip Dialogue Worked!", 1.5f, FColor::Yellow);
+}
+
+void USubsystem_Dialogue::PlayDisturbDialogue()
+{
+	IsMainCharacterInDialogue = true;
+	
+	FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+	if (DT_Disturb)
+	{
+		TArray<FName> RowNames = DT_Disturb->GetRowNames();
+		
+		if (!RowNames.IsEmpty())
+		{
+			int RandomIndex = FMath::RandRange(0, RowNames.Num() - 1);
+			FName SelectedRowName = RowNames[RandomIndex];
+			
+			FDisturb* RandomDisturbRow = DT_Disturb->FindRow<FDisturb>(SelectedRowName, "");
+			
+			if (RandomDisturbRow)
+			{
+				ShowDialogue(RandomDisturbRow->DisturbText, InteractedCharacter);
+				
+				if (TimerManager.IsTimerActive(DelayCloseDialogueHandle))
+				{
+					TimerManager.ClearTimer(DelayCloseDialogueHandle);
+					
+					GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,CalculateDialogueDuration(RandomDisturbRow->DisturbText),false);
+				}
+				else
+				{
+					GetWorld()->GetTimerManager().SetTimer(DelayCloseDialogueHandle,this, &USubsystem_Dialogue::CloseDialogueAfterSeconds,CalculateDialogueDuration(RandomDisturbRow->DisturbText),false);
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DT_Disturb is not valid!"));
+	}
 }
 
 

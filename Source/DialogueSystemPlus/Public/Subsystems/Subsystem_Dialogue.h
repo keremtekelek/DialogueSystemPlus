@@ -53,7 +53,7 @@ public:
 	virtual ETickableTickType GetTickableTickType() const override;
 	virtual TStatId GetStatId() const override;
 
-	
+	USubsystem_Dialogue();
 
 	//***VARIABLES***
 public:
@@ -278,6 +278,10 @@ public:
 	UPROPERTY()
 	EConversationPartner LastDialoguePartner;
 	
+	UPROPERTY()
+	UDataTable* DT_Disturb;
+	
+	
 	
 	//***FUNCTIONS***
 public:
@@ -353,6 +357,9 @@ public:
 	//
 	UFUNCTION()
 	void OpenOrCloseCursor(bool OpenOrCloseValue);
+	
+	UFUNCTION()
+	void PlayDisturbDialogue();
 	
 
 	// DEBUG
