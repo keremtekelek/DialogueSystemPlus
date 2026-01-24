@@ -19,6 +19,8 @@
 #include "Tickable.h"
 #include "GameplayTagContainer.h"
 #include "GameplayTagsManager.h"
+#include "CollisionQueryParams.h"
+#include "DrawDebugHelpers.h"
 #include "Subsystem_Dialogue.generated.h"
 
 class UAC_InteractionSystem;
@@ -283,6 +285,8 @@ public:
 	
 	
 	
+	
+	
 	//***FUNCTIONS***
 public:
 
@@ -365,6 +369,9 @@ public:
 	UFUNCTION()
 	void LockOrReleaseTheMainCharacter(bool LockOrReleaseValue);
 	
+	// this function fixes any obstacle preventing the main character and an NPC from seeing each other while they are talking. 
+	UFUNCTION()
+	void FixMainCharacterPosition();
 
 	// DEBUG
 

@@ -54,6 +54,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
 	FVector OwnerLocation;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
+	FRotator OwnerRotation;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "NPC Data")
+	FRotator OriginalRotation;
+	
+	
+	
 
 public:
 
@@ -62,9 +71,16 @@ public:
 
 	UFUNCTION()
 	void GettingDynamicVariables();
-
+	
+	UFUNCTION()
+	void TurnBackOriginalRotation();
+	
 	UFUNCTION(BlueprintCallable)
 	void AddMoodValue(int MoodValueToAdd);
+	
+	void SetNPC_TransformProperties(FVector SetLocation);
+	
+	void SetNPC_TransformProperties(FRotator SetRotation);
 		
 };
 

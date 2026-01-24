@@ -5,6 +5,7 @@
 #include "DialogueSystemPlusCharacter.h"
 #include "PlayerController/PlayerControllerCPP.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "NPC/NPC_Character_Base.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Subsystems/Subsystem_EventManager.h"
 
@@ -117,6 +118,7 @@ void USubsystem_Dialogue::StartDialogue()
 		IsMainCharacterInDialogue = true;
 		LastDialoguePartner = InteractedCharacter;
 		LockOrReleaseTheMainCharacter(true);
+		FixMainCharacterPosition();
 		ControlDialogue();
 	}
 	else
@@ -299,6 +301,7 @@ void USubsystem_Dialogue::FinishDialogue()
 	WBP_Dialogue->CloseChoices();
 	
 	IsMainCharacterInDialogue = false;
+	AC_InteractionSystem->AC_DialogueSystem->TurnBackOriginalRotation();
 }
 
 
@@ -943,6 +946,81 @@ void USubsystem_Dialogue::LockOrReleaseTheMainCharacter(bool LockOrReleaseValue)
 		}
 	}
 		
+}
+
+// this function fixes any obstacle preventing the main character and an NPC from seeing each other while they are talking. 
+void USubsystem_Dialogue::FixMainCharacterPosition()
+{
+	// Adjusting the Trace Parameters, IgnoredActors, Shape, Start-End location, trace distance, sphere radius
+	FVector StartLocation = MainCharacter->GetActorLocation() + FVector(0.0f, 0.0f, 70.f);
+	float TraceDistance = 250.f;
+	FVector EndLocation = StartLocation + (MainCharacter->GetActorForwardVector() * TraceDistance);
+	float Radius = 25.0f; 
+	
+	FCollisionShape Shape = FCollisionShape::MakeSphere(Radius);
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(MainCharacter);
+	
+	FHitResult HitResult;
+
+	bool Hit = GetWorld()->SweepSingleByChannel(HitResult, StartLocation, EndLocation, FQuat::Identity, ECC_Visibility,Shape,TraceParams);
+
+	//If there is a hit!
+	if (Hit)
+	{
+		AActor* HitActor = HitResult.GetActor();
+		
+		if (HitActor)
+		{
+			//And if it's not NPC, spawning the main character in front of NPC
+			ANPC_Character_Base* HitNPC = Cast<ANPC_Character_Base>(HitActor);
+			if (!HitNPC)
+			{
+				DrawDebugSphere(GetWorld(), HitResult.Location, Radius, 14, FColor::Green, false, 4.0f);
+				
+				FVector NPC_Location = AC_InteractionSystem->AC_DialogueSystem->OwnerLocation;
+				FRotator NPC_Rotation = AC_InteractionSystem->AC_DialogueSystem->OwnerRotation;
+				FVector NPC_ForwardVector = NPC_Rotation.Vector();
+				
+				FVector DesiredMainCharacterLocation = NPC_Location + (NPC_ForwardVector * 300.0f);
+				DesiredMainCharacterLocation.Z = MainCharacter->GetActorLocation().Z;
+				
+				FVector LookAtDirection = NPC_Location - DesiredMainCharacterLocation;
+				
+				FRotator DesiredMainCharacterRotation = LookAtDirection.Rotation();;
+				DesiredMainCharacterRotation.Pitch = 0.0f;
+				DesiredMainCharacterRotation.Roll = 0.0f;
+				
+				MainCharacter->SetActorLocation(DesiredMainCharacterLocation);
+				MainCharacter->SetActorRotation(DesiredMainCharacterRotation);
+			}
+			else
+			{
+				DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 4.0f);
+			}
+		}
+		else
+		{
+			DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 4.0f);
+		}
+	}
+	else
+	{
+		DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red, false, 4.0f);
+	}
+	
+	// In any case, we want the rotate NPC to us.
+	FVector NPC_Location2 = AC_InteractionSystem->AC_DialogueSystem->OwnerLocation;
+	FVector DirectionToPlayer2 = MainCharacter->GetActorLocation() -  NPC_Location2;
+	FRotator LookAtRotation2 = DirectionToPlayer2.Rotation();
+				
+	LookAtRotation2.Pitch = 0.0f;
+	LookAtRotation2.Roll = 0.0f;
+				
+	AC_InteractionSystem->AC_DialogueSystem->SetNPC_TransformProperties(LookAtRotation2);
+	
+	
+	PrintString("FixMainCharacterPosition is called!", 2.5f, FColor::Emerald);
 }
 
 //DEBUG Functions

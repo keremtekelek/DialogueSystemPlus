@@ -50,6 +50,8 @@ void UAC_DialogueSystem::GettingStaticVariables()
 		//Getting Owner NPC Name
 		InteractedCharacter = IInterface_NPC_Mood::Execute_GetInteractedCharacter(Owner);
 	}
+	
+	OriginalRotation = Owner->GetActorRotation();
 }
 
 // Getting Useful Dynamic Variables
@@ -65,6 +67,7 @@ void UAC_DialogueSystem::GettingDynamicVariables()
 	if (IsValid(Owner))
 	{
 		OwnerLocation = Owner->GetActorLocation();
+		OwnerRotation = Owner->GetActorRotation();
 	}
 }
 
@@ -78,6 +81,30 @@ void UAC_DialogueSystem::AddMoodValue(int MoodValueToAdd)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Mood Value not worked. Value to add is:%d"),MoodValueToAdd);
+	}
+}
+
+void UAC_DialogueSystem::TurnBackOriginalRotation()
+{
+	if (IsValid(Owner))
+	{
+		Owner->SetActorRotation(OriginalRotation);
+	}
+}
+
+void UAC_DialogueSystem::SetNPC_TransformProperties(FVector SetLocation)
+{
+	if (IsValid(Owner))
+	{
+		Owner->SetActorLocation(SetLocation);
+	}
+}
+
+void UAC_DialogueSystem::SetNPC_TransformProperties(FRotator SetRotation)
+{
+	if (IsValid(Owner))
+	{
+		Owner->SetActorRotation(SetRotation);
 	}
 }
 
