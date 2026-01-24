@@ -8,7 +8,7 @@ UAC_InteractionSystem::UAC_InteractionSystem()
 {
 	
 	PrimaryComponentTick.bCanEverTick = true;
-
+	PrimaryComponentTick.TickInterval = 0.5f;
 	
 }
 
@@ -19,8 +19,6 @@ void UAC_InteractionSystem::BeginPlay()
 	Super::BeginPlay();
 
 	GettingVariables();
-	
-	
 }
 
 
@@ -28,8 +26,18 @@ void UAC_InteractionSystem::BeginPlay()
 void UAC_InteractionSystem::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	
+	if (IsMainCharacterInDialogueCollision)
+	{
+		FString moodString = FString::FromInt(AC_DialogueSystem->MoodValue);
+		FText mood = FText::FromString(moodString);
+		
+		AC_DialogueSystem->WBP_MoodMeter->ShowMoodValue(true, mood);
+	}
+	else
+	{
+		AC_DialogueSystem->WBP_MoodMeter->ShowMoodValue(false, FText());
+	}
 }
 
 
@@ -41,8 +49,6 @@ void UAC_InteractionSystem::OnTriggerBeginOverlap(AActor* OverlappedActor, AActo
 	
 	DialogueSubsystem->AC_InteractionSystem = this;
 	
-	AC_DialogueSystem->WBP_MoodMeter->ShowMoodValue(true, mood);
-	
 	if (OtherActor->GetClass()->ImplementsInterface(UInterface_MainCharacter::StaticClass()))
 	{
 		IsMainCharacterInDialogueCollision = true;
@@ -53,9 +59,6 @@ void UAC_InteractionSystem::OnTriggerBeginOverlap(AActor* OverlappedActor, AActo
 void UAC_InteractionSystem::OnTriggerEndOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	DialogueSubsystem->AC_InteractionSystem = nullptr;
-
-	AC_DialogueSystem->WBP_MoodMeter->ShowMoodValue(false, FText());
-	
 
 	if (OtherActor->GetClass()->ImplementsInterface(UInterface_MainCharacter::StaticClass()))
 	{

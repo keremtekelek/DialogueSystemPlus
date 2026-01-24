@@ -58,6 +58,17 @@ void USubsystem_Dialogue::Tick(float DeltaTime)
 		{
 			ProcessedGlobalEvents = EventManager_Subsystem->TriggeredEvents;
 		}
+		
+		/*
+		* if (AC_InteractionSystem)
+		{
+			MoodValue_NPC = AC_InteractionSystem->AC_DialogueSystem->MoodValue;
+		}
+		 */
+		
+		
+		
+		//*** END OF THE CODES!***
 		TimeSinceLastTick -= TickInterval; 
 	}
 }

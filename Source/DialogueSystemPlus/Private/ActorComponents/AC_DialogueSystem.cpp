@@ -74,8 +74,6 @@ void UAC_DialogueSystem::AddMoodValue(int MoodValueToAdd)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Mood Value has been worked. Value is:%d"),MoodValueToAdd);
 		IInterface_NPC_Mood::Execute_AddMoodValue(Owner, MoodValueToAdd);
-
-		//MoodValue = IInterface_NPC_Mood::Execute_GetMoodValue(Owner);
 	}
 	else
 	{
