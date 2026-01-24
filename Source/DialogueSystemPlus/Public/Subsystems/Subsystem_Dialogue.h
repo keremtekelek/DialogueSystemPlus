@@ -361,6 +361,10 @@ public:
 	UFUNCTION()
 	void PlayDisturbDialogue();
 	
+	// if the bool value is true, that means lock the main character. If it is false, then that means release the main character
+	UFUNCTION()
+	void LockOrReleaseTheMainCharacter(bool LockOrReleaseValue);
+	
 
 	// DEBUG
 

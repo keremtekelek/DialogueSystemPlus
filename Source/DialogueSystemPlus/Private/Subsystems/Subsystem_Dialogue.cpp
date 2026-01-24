@@ -59,15 +59,6 @@ void USubsystem_Dialogue::Tick(float DeltaTime)
 			ProcessedGlobalEvents = EventManager_Subsystem->TriggeredEvents;
 		}
 		
-		/*
-		* if (AC_InteractionSystem)
-		{
-			MoodValue_NPC = AC_InteractionSystem->AC_DialogueSystem->MoodValue;
-		}
-		 */
-		
-		
-		
 		//*** END OF THE CODES!***
 		TimeSinceLastTick -= TickInterval; 
 	}
@@ -125,6 +116,7 @@ void USubsystem_Dialogue::StartDialogue()
 	{
 		IsMainCharacterInDialogue = true;
 		LastDialoguePartner = InteractedCharacter;
+		LockOrReleaseTheMainCharacter(true);
 		ControlDialogue();
 	}
 	else
@@ -301,6 +293,7 @@ void USubsystem_Dialogue::FinishDialogue()
 	GetWorld()->GetTimerManager().ClearTimer(DelayCloseDialogueHandle);
 	
 	OpenOrCloseCursor(false);
+	LockOrReleaseTheMainCharacter(false);
 	
 	WBP_Dialogue->CloseDialogue();
 	WBP_Dialogue->CloseChoices();
@@ -467,6 +460,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		
 		TargetDialogueID = Choice1_NextDialogueID;
 		OpenOrCloseCursor(false);
+		
 	}
 	else if (ChosenButton == EChosenOption::Choice2)
 	{
@@ -486,6 +480,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		
 		TargetDialogueID = Choice2_NextDialogueID;
 		OpenOrCloseCursor(false);
+		
 	}
 	else if (ChosenButton == EChosenOption::Choice3)
 	{
@@ -505,6 +500,7 @@ void USubsystem_Dialogue::MakeChoice(EChosenOption ChosenButton)
 		
 		TargetDialogueID = Choice3_NextDialogueID;
 		OpenOrCloseCursor(false);
+		
 	}
 	
 	if (!TargetDialogueID.IsNone())
@@ -906,16 +902,34 @@ void USubsystem_Dialogue::OpenOrCloseCursor(bool OpenOrCloseValue)
 {
 	if (OpenOrCloseValue)
 	{
-		PlayerController->SetIgnoreMoveInput(true);
-		PlayerController->StopMovement();
-		MainCharacter->GetCharacterMovement()->StopMovementImmediately();
-	
 		FInputModeUIOnly InputMode;
 		InputMode.SetWidgetToFocus(WBP_Dialogue->TakeWidget());
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 		PlayerController->SetInputMode(InputMode);
 		PlayerController->bShowMouseCursor = true;
 	}
+	else
+	{
+		FInputModeGameOnly InputMode;
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = false;
+		FSlateApplication::Get().SetAllUserFocusToGameViewport();
+	}
+}
+
+
+// if the bool value is true, that means lock the main character. If it is false, then that means release the main character
+void USubsystem_Dialogue::LockOrReleaseTheMainCharacter(bool LockOrReleaseValue)
+{
+	// locking the main character
+	if (LockOrReleaseValue)
+	{
+		PlayerController->SetIgnoreMoveInput(true);
+		PlayerController->StopMovement();
+		MainCharacter->GetCharacterMovement()->StopMovementImmediately();
+	}
+	
+	// releasing the main character
 	else
 	{
 		while (PlayerController->IsMoveInputIgnored())
@@ -927,12 +941,8 @@ void USubsystem_Dialogue::OpenOrCloseCursor(bool OpenOrCloseValue)
 		{
 			PlayerController->SetIgnoreLookInput(false);
 		}
-	
-		FInputModeGameOnly InputMode;
-		PlayerController->SetInputMode(InputMode);
-		PlayerController->bShowMouseCursor = false;
-		FSlateApplication::Get().SetAllUserFocusToGameViewport();
 	}
+		
 }
 
 //DEBUG Functions
