@@ -3,62 +3,44 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/TextBlock.h"
-#include "Components/CanvasPanel.h"
-#include "Components/VerticalBox.h"
-#include "Components/ComboBoxString.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
-#include "Kismet/GameplayStatics.h"       
-#include "Kismet/KismetSystemLibrary.h"
-#include "Widget_StartMenu.generated.h"
+#include "Components/CanvasPanel.h"
+#include "Kismet/GameplayStatics.h"
+#include "Widget_EndMenu.generated.h"
 
 class APlayerControllerCPP;
 
 UCLASS()
-class DIALOGUESYSTEMPLUS_API UWidget_StartMenu : public UUserWidget
+class DIALOGUESYSTEMPLUS_API UWidget_EndMenu : public UUserWidget
 {
 	GENERATED_BODY()
 	
 public:
+	//Widget Components
 	
-	// Widget Componenets
 	UPROPERTY(meta = (BindWidget))
 	UCanvasPanel* Canvas;
 	
 	UPROPERTY(meta = (BindWidget))
-	UVerticalBox* VerticalBox;
-	
-	UPROPERTY(meta = (BindWidget))
-	UButton* StartButton; 
-	
-	UPROPERTY(meta = (BindWidget))
-	UButton* QuitButton; 
-	
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* StartText;
+	UTextBlock* TheEndText;
 	
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* QuitText;
 	
 	UPROPERTY(meta = (BindWidget))
-	UComboBoxString* Cb_ChoseLanguage;
+	UButton* QuitButton;
 	
 	UPROPERTY(meta = (BindWidget))
 	UImage* MenuBackground;
-	
 	//
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Settings")
 	FName LevelToLoad = FName("ThirdPersonMap");
-	
 public:
 	
 	virtual void NativeConstruct() override;
 	
 	UFUNCTION()
-	void OnStartClicked();
-
-	UFUNCTION()
-	void OnQuitClicked();
-	
+	void QuitButtonClicked();
 };

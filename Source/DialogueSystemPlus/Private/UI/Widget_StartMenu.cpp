@@ -17,13 +17,11 @@ void UWidget_StartMenu::NativeConstruct()
 	
 	if (StartButton)
 	{
-		//StartButton->OnClicked.RemoveDynamic(this, &UWidget_StartMenu::OnStartClicked);
 		StartButton->OnClicked.AddDynamic(this, &UWidget_StartMenu::OnStartClicked);
 	}
 
 	if (QuitButton)
 	{
-		//QuitButton->OnClicked.RemoveDynamic(this, &UWidget_StartMenu::OnQuitClicked);
 		QuitButton->OnClicked.AddDynamic(this, &UWidget_StartMenu::OnQuitClicked);
 	}
 }
@@ -34,6 +32,14 @@ void UWidget_StartMenu::OnStartClicked()
 	{
 		UGameplayStatics::OpenLevel(this, LevelToLoad);
 		UE_LOG(LogTemp, Log, TEXT("Loading Level: %s"), *LevelToLoad.ToString());
+		
+		APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+		APlayerControllerCPP* PlayerController = Cast<APlayerControllerCPP>(PC);
+		
+		FInputModeGameOnly InputMode;
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = false;
+		FSlateApplication::Get().SetAllUserFocusToGameViewport();
 	}
 	else
 	{

@@ -372,7 +372,8 @@ public:
 	// this function fixes any obstacle preventing the main character and an NPC from seeing each other while they are talking. 
 	UFUNCTION()
 	void FixMainCharacterPosition();
-
+	
+	
 	// DEBUG
 
 	UFUNCTION()
