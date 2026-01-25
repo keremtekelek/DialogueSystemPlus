@@ -31,13 +31,12 @@ void UWidget_Dialogue::NativeConstruct()
 	if (GI)
 	{
 		Dialogue_Subsystem = GI->GetSubsystem<USubsystem_Dialogue>();
-		
 	}
 }
 
 void UWidget_Dialogue::NativePreConstruct()
 {
-	
+	Super::NativePreConstruct();
 }
 
 // Widget Functions
@@ -47,8 +46,11 @@ void UWidget_Dialogue::ShowDialogue(FText DialogueToDisplay)
 	DialogueText->SetVisibility(ESlateVisibility::Visible);
 	DialogueText->SetText(DialogueToDisplay);
 	DialogueBorder->SetVisibility(ESlateVisibility::Visible);
+	SkipDialogueText->SetVisibility(ESlateVisibility::Visible);
 	
 	PlayAnimation(ShowDialogueAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
+	PlayAnimation(ShowSkipDialogueAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
+	
 }
 
 void UWidget_Dialogue::CloseDialogue()
@@ -56,8 +58,10 @@ void UWidget_Dialogue::CloseDialogue()
 	DialogueText->SetVisibility(ESlateVisibility::Hidden);
 	DialogueText->SetText(FText());
 	DialogueBorder->SetVisibility(ESlateVisibility::Hidden);
+	SkipDialogueText->SetVisibility(ESlateVisibility::Hidden);
 	
 	PlayAnimation(CloseDialogueAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
+	PlayAnimation(CloseSkipDialogueAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
 }
 
 void UWidget_Dialogue::ShowChoices(FText Choice1_Text, FText Choice2_Text, FText Choice3_Text)

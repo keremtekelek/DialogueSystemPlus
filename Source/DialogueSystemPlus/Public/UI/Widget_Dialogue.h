@@ -12,6 +12,7 @@
 #include "Components/Border.h"
 #include "Components/SizeBox.h"
 #include "Animation/WidgetAnimation.h"
+#include "Components/RichTextBlock.h"
 #include "Widget_Dialogue.generated.h"
 
 class USubsystem_Dialogue;
@@ -70,6 +71,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UBorder* Choice3Border;
 	
+	UPROPERTY(meta = (BindWidget))
+	URichTextBlock* SkipDialogueText;
 	//
 
 	UPROPERTY()
@@ -89,6 +92,12 @@ public:
 	
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* CloseDialogueAnim;
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* ShowSkipDialogueAnim;
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* CloseSkipDialogueAnim;
 
 	
 	
