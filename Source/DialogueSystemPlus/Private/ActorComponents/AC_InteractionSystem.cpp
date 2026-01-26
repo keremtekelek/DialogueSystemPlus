@@ -10,6 +10,7 @@ UAC_InteractionSystem::UAC_InteractionSystem()
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.TickInterval = 0.5f;
 	
+	
 }
 
 
@@ -19,6 +20,9 @@ void UAC_InteractionSystem::BeginPlay()
 	Super::BeginPlay();
 
 	GettingVariables();
+	
+	OpenOrCloseBillboards(true, EBillboardType::FloatingCircle);
+	OpenOrCloseBillboards(false, EBillboardType::Pointer);
 }
 
 
@@ -53,6 +57,9 @@ void UAC_InteractionSystem::OnTriggerBeginOverlap(AActor* OverlappedActor, AActo
 	{
 		IsMainCharacterInDialogueCollision = true;
 	}
+	
+	OpenOrCloseBillboards(false, EBillboardType::FloatingCircle);
+	OpenOrCloseBillboards(true, EBillboardType::Pointer);
 }
 
 //Market Collision's EndOverlap event
@@ -64,6 +71,9 @@ void UAC_InteractionSystem::OnTriggerEndOverlap(AActor* OverlappedActor, AActor*
 	{
 		IsMainCharacterInDialogueCollision = false;
 	}
+	
+	OpenOrCloseBillboards(true, EBillboardType::FloatingCircle);
+	OpenOrCloseBillboards(false, EBillboardType::Pointer);
 }
 
 //Getting Useful Variables!
@@ -92,6 +102,55 @@ void UAC_InteractionSystem::GettingVariables()
 	if (IsValid(Owner) && Owner->GetClass()->ImplementsInterface(UInterface_NPC_Mood::StaticClass()))
 	{
 		AC_DialogueSystem = IInterface_NPC_Mood::Execute_GetDialogueSystemComponent(Owner);
+	}
+	
+	//Getting Owner NPC's billboards
+	if (Owner)
+	{
+		TArray<UBillboardComponent*> FoundBillboards;
+		Owner->GetComponents<UBillboardComponent>(FoundBillboards);
+		
+		for (UBillboardComponent* Billboard : FoundBillboards)
+		{
+			if (Billboard)
+			{
+				if (Billboard->ComponentHasTag(FName("FloatingCircleIcon")))
+				{
+					FloatingCircleBillboard = Billboard;
+				}
+				else if (Billboard->ComponentHasTag(FName("PointerIcon")))
+				{
+					PointerBillboard = Billboard;
+				}
+			}
+		}
+	}
+}
+
+void UAC_InteractionSystem::OpenOrCloseBillboards(bool OpenOrCloseValue, EBillboardType WhichBillboard)
+{
+	if (WhichBillboard == EBillboardType::FloatingCircle)
+	{
+		if (OpenOrCloseValue)
+		{
+			FloatingCircleBillboard->SetVisibility(true);
+		}
+		else
+		{
+			FloatingCircleBillboard->SetVisibility(false);
+		}
+	}
+	
+	else if (WhichBillboard == EBillboardType::Pointer)
+	{
+		if (OpenOrCloseValue)
+		{
+			PointerBillboard->SetVisibility(true);
+		}
+		else
+		{
+			PointerBillboard->SetVisibility(false);
+		}
 	}
 }
 

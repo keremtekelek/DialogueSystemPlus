@@ -8,9 +8,18 @@
 #include "Subsystems/Subsystem_Dialogue.h"
 #include "ActorComponents/AC_DialogueSystem.h"
 #include "Interfaces/Interface_NPC_Mood.h"
+#include "Components/BillboardComponent.h"
 #include "Engine/GameInstance.h" 
 #include "AC_InteractionSystem.generated.h"
 
+
+UENUM(BlueprintType)
+enum class EBillboardType : uint8
+{
+	Pointer				UMETA(DisplayName = "Pointer"),    
+	FloatingCircle	    UMETA(DisplayName = "FloatingCircle")   
+	  
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DIALOGUESYSTEMPLUS_API UAC_InteractionSystem : public UActorComponent
@@ -42,6 +51,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	bool IsMainCharacterInDialogueCollision;
+	
+	UPROPERTY()
+	UBillboardComponent* PointerBillboard;
+
+	UPROPERTY()
+	UBillboardComponent* FloatingCircleBillboard;
 
 public:
 
@@ -56,6 +71,8 @@ public:
 	UFUNCTION()
 	void GettingVariables();
 	
+	UFUNCTION()
+	void OpenOrCloseBillboards(bool OpenOrCloseValue, EBillboardType WhichBillboard);
 
 	
 };
