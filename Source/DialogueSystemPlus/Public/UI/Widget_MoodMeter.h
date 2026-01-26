@@ -1,7 +1,4 @@
-
-
 #pragma once
-
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/CanvasPanel.h" 
@@ -26,6 +23,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* MoodValue;
+	
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* StaticText;
 
 public:
 
