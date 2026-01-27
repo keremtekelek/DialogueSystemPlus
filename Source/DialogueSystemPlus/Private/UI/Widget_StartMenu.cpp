@@ -5,25 +5,29 @@ void UWidget_StartMenu::NativeConstruct()
 {
 	Super::NativeConstruct();
 	
-	if (Cb_ChoseLanguage)
+	if (Button_Start)
 	{
-		Cb_ChoseLanguage->ClearOptions();
+		Button_Start->OnClicked.AddDynamic(this, &UWidget_StartMenu::OnStartClicked);
+	}
 
-		Cb_ChoseLanguage->AddOption(TEXT("English"));
-		Cb_ChoseLanguage->AddOption(TEXT("Turkish"));
-
-		Cb_ChoseLanguage->SetSelectedOption(TEXT("English"));
+	if (Button_Quit)
+	{
+		Button_Quit->OnClicked.AddDynamic(this, &UWidget_StartMenu::OnQuitClicked);
 	}
 	
-	if (StartButton)
+	if (Button_PreviousLanguage)
 	{
-		StartButton->OnClicked.AddDynamic(this, &UWidget_StartMenu::OnStartClicked);
+		Button_PreviousLanguage->OnClicked.AddDynamic(this, &UWidget_StartMenu::PreviousLanguageButtonClicked);
 	}
-
-	if (QuitButton)
+	
+	if (Button_NextLanguage)
 	{
-		QuitButton->OnClicked.AddDynamic(this, &UWidget_StartMenu::OnQuitClicked);
+		Button_NextLanguage->OnClicked.AddDynamic(this, &UWidget_StartMenu::NextLanguageButtonClicked);
 	}
+	
+	
+	CurrentLanguageText->SetText(FText::FromString(LanguageNames[0]));
+	FInternationalization::Get().SetCurrentCulture(CultureCodes[0]);
 }
 
 void UWidget_StartMenu::OnStartClicked()
@@ -58,5 +62,44 @@ void UWidget_StartMenu::OnQuitClicked()
 		UE_LOG(LogTemp, Log, TEXT("Quit Game Clicked!"));
 	}
 }
+
+
+void UWidget_StartMenu::PreviousLanguageButtonClicked()
+{
+	if (CurrentLanguageIndex > 0)
+	{
+		CurrentLanguageIndex--;
+		UpdateLanguage();
+	}
+	else if (CurrentLanguageIndex == 0)
+	{
+		//UpdateLanguage();
+		//we do nothing
+	}
+}
+
+void UWidget_StartMenu::NextLanguageButtonClicked()
+{
+	if (CurrentLanguageIndex == CultureCodes.Num() - 1)
+	{
+		//UpdateLanguage();
+		// we do nothing
+	}
+	else
+	{
+		CurrentLanguageIndex++;
+		UpdateLanguage();
+	}
+}
+
+void UWidget_StartMenu::UpdateLanguage()
+{
+	CurrentLanguageText->SetText(FText::FromString(LanguageNames[CurrentLanguageIndex]));
+	FInternationalization::Get().SetCurrentCulture(CultureCodes[CurrentLanguageIndex]);
+	
+	PlayAnimation(ChangeLanguageAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
+}
+
+
 
 
