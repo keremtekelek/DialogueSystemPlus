@@ -15,6 +15,7 @@
 #include "Widget_StartMenu.generated.h"
 
 class APlayerControllerCPP;
+class USubsystem_Localization;
 
 UCLASS()
 class DIALOGUESYSTEMPLUS_API UWidget_StartMenu : public UUserWidget
@@ -54,40 +55,35 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* MenuBackground;
 	
-	
+	// Other Properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Settings")
 	FName LevelToLoad = FName("ThirdPersonMap");
 	
 	UPROPERTY()
-	TArray<FString> LanguageNames = {TEXT("Türkçe"), TEXT("English")};
-	
-	UPROPERTY()
-	TArray<FString> CultureCodes = {TEXT("tr"), TEXT("en")};
-	
-	UPROPERTY()
-	int CurrentLanguageIndex = 0;
+	USubsystem_Localization* Localization_Subsystem;
 	
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ChangeLanguageAnim;
 	
-public:
+	
+protected:
 	
 	virtual void NativeConstruct() override;
 	
-	//Button functions
+public:
 	
-	UFUNCTION()
+	UFUNCTION(Category = "Button Functions")
 	void OnStartClicked();
 
-	UFUNCTION()
+	UFUNCTION(Category = "Button Functions")
 	void OnQuitClicked();
 	
-	UFUNCTION()
+	UFUNCTION(Category = "Button Functions")
 	void PreviousLanguageButtonClicked();
 	
-	UFUNCTION()
+	UFUNCTION(Category = "Button Functions")
 	void NextLanguageButtonClicked();
 	
 	UFUNCTION()
-	void UpdateLanguage();
+	void LanguageChangedHandler(FString NewLanguageName);
 };

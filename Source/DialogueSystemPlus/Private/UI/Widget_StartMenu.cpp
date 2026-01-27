@@ -1,5 +1,6 @@
 #include "UI/Widget_StartMenu.h"
 #include "PlayerController/PlayerControllerCPP.h"
+#include "Subsystems/Subsystem_Localization.h"
 
 void UWidget_StartMenu::NativeConstruct()
 {
@@ -25,9 +26,18 @@ void UWidget_StartMenu::NativeConstruct()
 		Button_NextLanguage->OnClicked.AddDynamic(this, &UWidget_StartMenu::NextLanguageButtonClicked);
 	}
 	
-	
-	CurrentLanguageText->SetText(FText::FromString(LanguageNames[0]));
-	FInternationalization::Get().SetCurrentCulture(CultureCodes[0]);
+	UGameInstance* GI = GetGameInstance();
+	if (GI)
+	{
+		Localization_Subsystem = GI->GetSubsystem<USubsystem_Localization>();
+		
+		if (Localization_Subsystem)
+		{
+			Localization_Subsystem->LocalizationChanged.AddDynamic(this, &UWidget_StartMenu::LanguageChangedHandler);
+			
+			CurrentLanguageText->SetText(FText::FromString(Localization_Subsystem->GetCurrentLanguageName()));
+		}
+	}
 }
 
 void UWidget_StartMenu::OnStartClicked()
@@ -66,39 +76,24 @@ void UWidget_StartMenu::OnQuitClicked()
 
 void UWidget_StartMenu::PreviousLanguageButtonClicked()
 {
-	if (CurrentLanguageIndex > 0)
-	{
-		CurrentLanguageIndex--;
-		UpdateLanguage();
-	}
-	else if (CurrentLanguageIndex == 0)
-	{
-		//UpdateLanguage();
-		//we do nothing
-	}
+	Localization_Subsystem->PreviousLanguageButtonClicked();
 }
 
 void UWidget_StartMenu::NextLanguageButtonClicked()
 {
-	if (CurrentLanguageIndex == CultureCodes.Num() - 1)
-	{
-		//UpdateLanguage();
-		// we do nothing
-	}
-	else
-	{
-		CurrentLanguageIndex++;
-		UpdateLanguage();
-	}
+	Localization_Subsystem->NextLanguageButtonClicked();
 }
 
-void UWidget_StartMenu::UpdateLanguage()
+void UWidget_StartMenu::LanguageChangedHandler(FString NewLanguageName)
 {
-	CurrentLanguageText->SetText(FText::FromString(LanguageNames[CurrentLanguageIndex]));
-	FInternationalization::Get().SetCurrentCulture(CultureCodes[CurrentLanguageIndex]);
+	if (!(NewLanguageName == "Unknown"))
+	{
+		CurrentLanguageText->SetText(FText::FromString(NewLanguageName));
+	}
 	
-	PlayAnimation(ChangeLanguageAnim,0.0f,1,EUMGSequencePlayMode::Forward, 1.0f);
+	PlayAnimation(ChangeLanguageAnim, 0.0f, 1, EUMGSequencePlayMode::Forward, 1.0f);
 }
+
 
 
 
