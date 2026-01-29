@@ -59,10 +59,10 @@ This subsystem is the central hub for managing all dialogue operations, includin
 
 - **Dialogue Scoring**: Logic for evaluating and selecting the most scored dialogue (detailed in the system design section).
 - **Dialogue Display**: Handling the displaying dialogue.
-- **Input Management**: Automatically toggling the mouse cursor during choice selection.
+- **Input Management During Dialogue**: 
 - **"Do Not Disturb" Logic**: Allowing NPCs to give temporary, contextual responses when they are busy or unavailable.
 - **Player Positioning**: Automatically adjusting the player's position to ensure a clear line of sight with the NPC, preventing obstacles from blocking the interaction.
-- **NPC Orientation**: Dynamically rotating the NPC to face the player if approached from behind, ensuring natural eye contact and engagement.
+- **NPC Orientation**: Dynamically rotating the NPC to face the player if approached from behind, ensuring eye contact.
 - **Skip Functionality**: Managing the "Skip Dialogue" feature for players.
 - 
   ![Ekran görüntüsü_29-1-2026_20713_](https://github.com/user-attachments/assets/d8e07496-db68-4303-81e3-243574803350)
