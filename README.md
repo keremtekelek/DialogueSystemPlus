@@ -114,7 +114,7 @@ https://github.com/user-attachments/assets/8c97e2b2-d37f-4ed9-adb3-27fc86ca02d1
 Imagine you are developing a game where the speaker's name appears in the subtitles, similar to Cyberpunk 2077. You might want to customize this name based on whether the player has actually met or learned the NPC's identity.
 
 In the demo, for example, a character is initially labeled as "Apple Seller." However, after interacting and having him reveal his name, the subtitle dynamically updates to display his real name. 
-This system allows for such dynamic name changes to deepen player immersion. Additionally, you can apply this same logic to the player's name as well.
+Additionally, you can apply this same logic to the player's name as well.
 
 
 
@@ -159,6 +159,7 @@ This project is currently in the Prototype phase. Planned improvements for the n
 - **Bark System** 
 - **UI:** The UI looks very simple right now. I know the dialogue system and the UI are not directly related, but I want to fix this in the future.
 - **Releasing this project as a plugin**
+- **The overlapping issue between the meshes of the Instanced Mesh Manager**
 
 ## ✍️ Author
 
