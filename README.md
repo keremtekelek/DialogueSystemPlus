@@ -57,8 +57,8 @@ This system utilizes three core subsystems to manage its logic: Dialogue Subsyst
 
 This subsystem is the central hub for managing all dialogue operations, including:
 
-- **Dialogue Scoring**: Logic for evaluating and selecting the most appropriate dialogue (detailed in the Architecture section).
-- **Dialogue Display**: Handling the visual presentation of the scored lines.
+- **Dialogue Scoring**: Logic for evaluating and selecting the most scored dialogue (detailed in the system design section).
+- **Dialogue Display**: Handling the displaying dialogue.
 - **Input Management**: Automatically toggling the mouse cursor during choice selection.
 - **"Do Not Disturb" Logic**: Allowing NPCs to give temporary, contextual responses when they are busy or unavailable.
 - **Player Positioning**: Automatically adjusting the player's position to ensure a clear line of sight with the NPC, preventing obstacles from blocking the interaction.
