@@ -61,11 +61,17 @@ This subsystem is the central hub for managing all dialogue operations, includin
 - **Dialogue Display**: Handling the displaying dialogue.
 - **Input Management During Dialogue**: 
 - **"Do Not Disturb" Logic**: Allowing NPCs to give temporary, contextual responses when they are busy or unavailable.
-- **Player Positioning**: Automatically adjusting the player's position to ensure a clear line of sight with the NPC, preventing obstacles from blocking the interaction.
-- **NPC Orientation**: Dynamically rotating the NPC to face the player if approached from behind, ensuring eye contact.
 - **Skip Functionality**: Managing the "Skip Dialogue" feature for players.
-- 
-  ![Ekran görüntüsü_29-1-2026_20713_](https://github.com/user-attachments/assets/d8e07496-db68-4303-81e3-243574803350)
+  
+ ![Ekran görüntüsü_29-1-2026_20713_](https://github.com/user-attachments/assets/d8e07496-db68-4303-81e3-243574803350)
+
+- **Player Positioning**: Automatically adjusting the player's position to ensure a clear line of sight with the NPC, preventing obstacles from blocking the interaction.
+  
+ 
+
+
+https://github.com/user-attachments/assets/eb891eaf-2e94-411b-8b3f-1cb75c75b7db
+
 
 
   
@@ -73,7 +79,8 @@ This subsystem is the central hub for managing all dialogue operations, includin
 
 This subsystem allows us to trigger game events at any point during gameplay and maintains persistent memory of triggered game events.
 
-![event](https://github.com/user-attachments/assets/1adf119c-0304-4257-a1f7-1ac3f181da51)
+![event](https://github.com/user-attachments/assets/1adf119c-0304-4257-a1f7-1ac3f181da51) |
+
 
 
 
