@@ -168,6 +168,10 @@ This project is currently in the Prototype phase. Planned improvements for the n
 - **Releasing this project as a plugin**
 - **The overlapping issue between the meshes of the Instanced Mesh Manager**
 
+## 🎥 Video Example
+
+[![İzle](https://markdown-videos-api.jorgenkh.no/youtube/fgGmtzKbFJ8)](https://youtu.be/fgGmtzKbFJ8)
+
 ## ✍️ Author
 
 **Kerem Kaan Tekelek**
