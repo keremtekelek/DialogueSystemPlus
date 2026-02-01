@@ -49,6 +49,12 @@ Interactions with NPC are not static. These interactions are dynamically updated
 
 This architecture ensures that dialogues are context-aware, adapting in real-time to game events, past interactions, and the NPC’s emotional state.
 
+
+
+https://github.com/user-attachments/assets/ffaf9a16-5f39-4e0f-8448-9db68a34daf5
+
+
+
 ### 🧠 3. Subsystems
 
 This system utilizes three core subsystems to manage its logic: Dialogue Subsystem, Event Manager Subsystem, and Localization Subsystem.
