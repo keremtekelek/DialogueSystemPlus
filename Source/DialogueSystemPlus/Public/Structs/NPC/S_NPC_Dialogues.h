@@ -31,6 +31,9 @@ struct FNPC_Dialogues : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ENPCMood DesiredNPC_Mood;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<UWorld> TargetLevel;
+	
 	
 	// Auto Generated Dialogue Data
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Dialogue Data") 

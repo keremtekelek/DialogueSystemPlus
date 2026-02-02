@@ -373,6 +373,10 @@ public:
 	UFUNCTION()
 	void FixMainCharacterPosition();
 	
+	//
+	UFUNCTION()
+	FString GetCurrentMap();
+	
 	
 	// DEBUG
 

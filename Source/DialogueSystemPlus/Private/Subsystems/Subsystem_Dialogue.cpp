@@ -328,6 +328,11 @@ FName USubsystem_Dialogue::ScoreNPC_Dialogues()
 			{
 				continue;
 			}
+			
+			if (!(DialogueRow->TargetLevel.GetAssetName() == GetCurrentMap()))
+			{
+				continue;
+			}
 
 			FGameplayTagContainer RequiredTags = DialogueRow->RelatedGlobalEvents;
         
@@ -1021,6 +1026,14 @@ void USubsystem_Dialogue::FixMainCharacterPosition()
 	
 	
 	PrintString("FixMainCharacterPosition is called!", 2.5f, FColor::Emerald);
+}
+
+FString USubsystem_Dialogue::GetCurrentMap()
+{
+	FString CurrentMapName = GetWorld()->GetMapName();
+	CurrentMapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+	
+	return CurrentMapName;
 }
 
 //DEBUG Functions

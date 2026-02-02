@@ -32,6 +32,9 @@ struct FChoice1
 	
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
 	FName NextDialogueID;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data")
+	TSoftObjectPtr<UWorld> TargetLevel;
 };
 
 USTRUCT(BlueprintType)
@@ -60,6 +63,9 @@ struct FChoice2
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
 	FName NextDialogueID;
 	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data")
+	TSoftObjectPtr<UWorld> TargetLevel;
+	
 };
 
 USTRUCT(BlueprintType)
@@ -87,6 +93,9 @@ struct FChoice3
 	
 	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data") 
 	FName NextDialogueID;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Auto Generated Choice Data")
+	TSoftObjectPtr<UWorld> TargetLevel;
 	
 	
 };

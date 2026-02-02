@@ -141,6 +141,10 @@ void UMainCharacterChoices_Node::PostEditImport()
 			this->AllChoice_Row.Choice1.NextDialogueID = NAME_None;
 			this->AllChoice_Row.Choice2.NextDialogueID = NAME_None;
 			this->AllChoice_Row.Choice3.NextDialogueID = NAME_None;
+			
+			this->AllChoice_Row.Choice1.TargetLevel = nullptr;
+			this->AllChoice_Row.Choice2.TargetLevel = nullptr;
+			this->AllChoice_Row.Choice3.TargetLevel = nullptr;
 		}
 	}
 	

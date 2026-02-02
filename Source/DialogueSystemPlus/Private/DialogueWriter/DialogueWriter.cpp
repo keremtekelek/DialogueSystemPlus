@@ -48,8 +48,7 @@ void UDialogueWriter::GenerateDialogueData()
     }
 	
 	
-	// Checking for illegal root(especially for root choice node)
-	//bool FoundIllegalRoot = false;
+	
 
 	for (UEdGraph* Graph : BP_DialogueWriter->UbergraphPages)
 	{
@@ -69,7 +68,7 @@ void UDialogueWriter::GenerateDialogueData()
 
 					FText ErrorMsg = FText::FromString(TEXT("ERROR: Choice Node cannot be Root node"));
 					FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
-					//FoundIllegalRoot = true;
+					
 					FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(ChoiceNode);
 				}
 			}
@@ -83,7 +82,7 @@ void UDialogueWriter::GenerateDialogueData()
 
 					FText ErrorMsg = FText::FromString(TEXT("ERROR: Player Dialogue Node not cannot be Root node."));
 					FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
-					//FoundIllegalRoot = true;
+					
 					FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(MC_DialogueNode);
 				}
 				
@@ -96,16 +95,28 @@ void UDialogueWriter::GenerateDialogueData()
 					FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(MC_DialogueNode);
 				}
 			}
+			else if (UNPC_DialogueNode* npc_DialogueNode = Cast<UNPC_DialogueNode>(Node))
+			{
+				UEdGraphPin* InputPin = npc_DialogueNode->FindPin(UEdGraphSchema_K2::PN_Execute);
+				
+				if (!InputPin || InputPin->LinkedTo.Num() == 0)
+				{
+					if (npc_DialogueNode->NPC_Row.TargetLevel == nullptr)
+					{
+						UE_LOG(LogTemp, Error, TEXT("ERROR: NPC Dialogue Node's Target Level is Null!"))
+					
+						
+						FText ErrorMsg = FText::FromString(TEXT("ERROR: NPC Dialogue Node's Target Level is Null!"));
+						FMessageDialog::Open(EAppMsgType::Ok, ErrorMsg);
+						
+						FKismetEditorUtilities::BringKismetToFocusAttentionOnObject(npc_DialogueNode);
+					}
+				}
+			}
 		}
 	}
 
-	/*
-	* if (FoundIllegalRoot)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Dialogue Data Generation aborted due to illegal root!"));
-		return; 
-	}
-	 */
+	
 	
     
 	
@@ -242,6 +253,10 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
 						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
 						
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice1.TargetLevel = NPCNode->NPC_Row.TargetLevel;
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice2.TargetLevel = NPCNode->NPC_Row.TargetLevel;
+						Next_MainCharacterChoicesNode->AllChoice_Row.Choice3.TargetLevel = NPCNode->NPC_Row.TargetLevel;
+						
 						AddToDataTable(NPCNode);
 						HandleAutomatedData(Next_MainCharacterChoicesNode); 
 					}
@@ -250,6 +265,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						NPCNode->NPC_Row.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
 						
 						Next_NPCNode->NPC_Row.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
+						Next_NPCNode->NPC_Row.TargetLevel = NPCNode->NPC_Row.TargetLevel;
 						
 						AddToDataTable(NPCNode);
 						HandleAutomatedData(Next_NPCNode);
@@ -259,6 +275,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 						NPCNode->NPC_Row.NextDialogueID = Next_PlayerDialogueNode->MC_DialogueRow.DialogueID;
 						
 						Next_PlayerDialogueNode->MC_DialogueRow.ConversationPartner = NPCNode->NPC_Row.ConversationPartner;
+						Next_PlayerDialogueNode->MC_DialogueRow.TargetLevel = NPCNode->NPC_Row.TargetLevel;
 						
 						AddToDataTable(NPCNode);
 						HandleAutomatedData(Next_PlayerDialogueNode);
@@ -307,18 +324,21 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 							{
 								MainCharacterChoicesNode->AllChoice_Row.Choice1.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
 								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice1.ConversationPartner;
+								Next_NPCNode->NPC_Row.TargetLevel = MainCharacterChoicesNode->AllChoice_Row.Choice1.TargetLevel;
 							}
 							
 							else if (i == 1) // Choice 2
 							{
 								MainCharacterChoicesNode->AllChoice_Row.Choice2.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
 								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice2.ConversationPartner;
+								Next_NPCNode->NPC_Row.TargetLevel = MainCharacterChoicesNode->AllChoice_Row.Choice2.TargetLevel;
 							}
 							
 							else if (i == 2) // Choice 3
 							{
 								MainCharacterChoicesNode->AllChoice_Row.Choice3.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
 								Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterChoicesNode->AllChoice_Row.Choice3.ConversationPartner;
+								Next_NPCNode->NPC_Row.TargetLevel = MainCharacterChoicesNode->AllChoice_Row.Choice3.TargetLevel;
 							}
 							
 							AddToDataTable(MainCharacterChoicesNode);
@@ -329,12 +349,6 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 			}
 			else
 			{
-				//AddToDataTable(MainCharacterChoicesNode);
-				/*
-				* MainCharacterChoicesNode->AllChoice_Row.Choice1.EndOfDialogue = true;
-				MainCharacterChoicesNode->AllChoice_Row.Choice2.EndOfDialogue = true;
-				MainCharacterChoicesNode->AllChoice_Row.Choice3.EndOfDialogue = true;
-				 */
 				
 			}
 		}
@@ -362,6 +376,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 					{
 						MainCharacterDialogueNode->MC_DialogueRow.NextDialogueID = Next_NPCNode->NPC_Row.DialogueID;
 						Next_NPCNode->NPC_Row.ConversationPartner = MainCharacterDialogueNode->MC_DialogueRow.ConversationPartner;
+						Next_NPCNode->NPC_Row.TargetLevel = MainCharacterDialogueNode->MC_DialogueRow.TargetLevel;
 						
 						AddToDataTable(MainCharacterDialogueNode);
 						HandleAutomatedData(Next_NPCNode);
@@ -370,6 +385,7 @@ void UDialogueWriter::HandleAutomatedData(UEdGraphNode* HandledNode)
 					{
 						MainCharacterDialogueNode->MC_DialogueRow.NextDialogueID = Next_PlayerDialogueNode->MC_DialogueRow.DialogueID;
 						Next_PlayerDialogueNode->MC_DialogueRow.ConversationPartner = MainCharacterDialogueNode->MC_DialogueRow.ConversationPartner;
+						Next_PlayerDialogueNode->MC_DialogueRow.TargetLevel = MainCharacterDialogueNode->MC_DialogueRow.TargetLevel;
 						
 						AddToDataTable(MainCharacterDialogueNode);
 						HandleAutomatedData(Next_PlayerDialogueNode);
