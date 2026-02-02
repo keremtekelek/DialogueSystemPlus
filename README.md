@@ -174,6 +174,20 @@ This project is currently in the Prototype phase. Planned improvements for the n
 - **Releasing this project as a plugin**
 - **The overlapping issue between the meshes of the Instanced Mesh Manager**
 
+## ⬇️ I downloaded the project. What's next?
+
+After cloning the project, generating the Visual Studio project files, and building, your next steps depend on your goal
+
+- **To test the system with pre-made dialogues (including localization):** Navigate to 01_MyContent -> Levels -> StartMenuLevel, open StartMenuLevel, and launch it in Standalone Game mode.
+- **To test by writing your own dialogues:** Navigate to 01_MyContent -> Blueprints -> DialogueWriter -> ForDifferentLevels -> EmptyDemoLevel and open BP_DialogueWriter_EmptyDemoLevel to create your custom dialogue.
+
+  **Important Note:** When placing the NPC Dialogue Nodes, you must fill in two fields on the root nodes:
+  -**Target Level:** The level where the dialogue will play.
+  -**Conversation Partner:** The NPC who will speak this dialogue.
+
+Once you configure these on the root nodes, the rest of the dialogue tree will handle itself automatically.
+
+
 ## 🎥 Video Example
 
 [![İzle](https://markdown-videos-api.jorgenkh.no/youtube/fgGmtzKbFJ8)](https://youtu.be/fgGmtzKbFJ8)
