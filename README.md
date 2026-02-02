@@ -49,6 +49,12 @@ Interactions with NPC are not static. These interactions are dynamically updated
 
 This architecture ensures that dialogues are context-aware, adapting in real-time to game events, past interactions, and the NPC’s emotional state.
 
+
+
+https://github.com/user-attachments/assets/ffaf9a16-5f39-4e0f-8448-9db68a34daf5
+
+
+
 ### 🧠 3. Subsystems
 
 This system utilizes three core subsystems to manage its logic: Dialogue Subsystem, Event Manager Subsystem, and Localization Subsystem.
@@ -167,6 +173,10 @@ This project is currently in the Prototype phase. Planned improvements for the n
 - **UI:** The UI looks very simple right now. I know the dialogue system and the UI are not directly related, but I want to fix this in the future.
 - **Releasing this project as a plugin**
 - **The overlapping issue between the meshes of the Instanced Mesh Manager**
+
+## 🎥 Video Example
+
+[![İzle](https://markdown-videos-api.jorgenkh.no/youtube/fgGmtzKbFJ8)](https://youtu.be/fgGmtzKbFJ8)
 
 ## ✍️ Author
 
